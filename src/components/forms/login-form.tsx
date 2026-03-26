@@ -11,6 +11,18 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { SubmitButton } from "@/components/forms/submit-button";
 
 function getMessage(messageKey: string | null) {
+  if (messageKey === "account-created") {
+    return "Account created. If your project requires email confirmation, check your inbox, then log in.";
+  }
+
+  if (messageKey === "account-created-profile-pending") {
+    return "Account created. If email confirmation is enabled, confirm your email first. Your profile will be completed on your first successful login.";
+  }
+
+  if (messageKey === "account-created-profile-warning") {
+    return "Account created, but profile setup could not be completed yet. Log in once the account is active and the app will retry profile setup.";
+  }
+
   if (messageKey === "confirm-email") {
     return "Check your inbox, confirm your email if needed, then log in.";
   }
