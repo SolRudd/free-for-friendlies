@@ -1,10 +1,16 @@
+import { BrandLogo } from "@/components/site/brand-logo";
 import { LoginForm } from "@/components/forms/login-form";
+import { SetupNotice } from "@/components/site/setup-notice";
+import { getSupabaseSetupMessage, hasSupabasePublicEnv } from "@/lib/supabase/env";
 
 export default function LoginPage() {
+  const isSupabaseConfigured = hasSupabasePublicEnv();
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
         <section className="rounded-[2rem] border border-[color:var(--border)] bg-white p-8 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
+          <BrandLogo className="w-[260px]" />
           <h1 className="text-3xl font-semibold text-[var(--foreground)]">
             Log in
           </h1>
@@ -13,7 +19,17 @@ export default function LoginPage() {
             workflow from one dashboard.
           </p>
           <div className="mt-8">
-            <LoginForm />
+            {isSupabaseConfigured ? (
+              <LoginForm />
+            ) : (
+              <SetupNotice
+                eyebrow="Auth disabled"
+                title="Supabase is not configured yet"
+                description={getSupabaseSetupMessage()}
+                ctaHref="/"
+                ctaLabel="Return home"
+              />
+            )}
           </div>
         </section>
 

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
+import { BrandLogo } from "@/components/site/brand-logo";
 import { buttonStyles } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import { hasSupabasePublicEnv } from "@/lib/supabase/env";
 
 const links = [
   { href: "/teams", label: "Teams" },
@@ -10,20 +12,18 @@ const links = [
 
 export async function SiteHeader() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const isSupabaseConfigured = hasSupabasePublicEnv();
+  const user = supabase
+    ? (
+        await supabase.auth.getUser()
+      ).data.user
+    : null;
 
   return (
     <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:rgba(242,239,232,0.92)] backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-8">
-          <Link
-            href="/"
-            className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
-          >
-            Free For Friendlies
-          </Link>
+        <div className="flex items-center gap-6">
+          <BrandLogo priority />
 
           <nav className="hidden items-center gap-5 text-sm text-[var(--muted)] md:flex">
             {links.map((link) => (
@@ -39,6 +39,12 @@ export async function SiteHeader() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {!isSupabaseConfigured ? (
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">
+              Backend setup required
+            </span>
+          ) : null}
+
           <nav className="flex items-center gap-3 text-sm text-[var(--muted)] md:hidden">
             {links.map((link) => (
               <Link

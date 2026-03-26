@@ -9,7 +9,11 @@ import { SubmitButton } from "@/components/forms/submit-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export function TeamForm() {
+type TeamFormProps = {
+  defaultContactEmail?: string;
+};
+
+export function TeamForm({ defaultContactEmail = "" }: TeamFormProps) {
   const [state, formAction] = useActionState(createTeam, EMPTY_FORM_STATE);
 
   const getError = (field: string) => state.fieldErrors?.[field]?.[0];
@@ -137,11 +141,18 @@ export function TeamForm() {
           autoComplete="email"
           inputMode="email"
           required
-          defaultValue={state.values?.contact_email ?? ""}
+          defaultValue={state.values?.contact_email ?? defaultContactEmail}
           aria-invalid={Boolean(getError("contact_email"))}
-          aria-describedby={getError("contact_email") ? "team-contact-email-error" : undefined}
+          aria-describedby={
+            getError("contact_email")
+              ? "team-contact-email-error"
+              : "team-contact-email-hint"
+          }
           placeholder="fixtures@club.com"
         />
+        <p id="team-contact-email-hint" className="mt-2 text-sm text-[var(--muted)]">
+          This defaults to your account email so teams have a clear contact point.
+        </p>
         <FieldError id="team-contact-email-error" error={getError("contact_email")} />
       </div>
 

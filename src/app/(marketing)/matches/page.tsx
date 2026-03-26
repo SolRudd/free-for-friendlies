@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { SetupNotice } from "@/components/site/setup-notice";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 import { buttonStyles } from "@/components/ui/button";
 
 function formatDate(value: string | null) {
@@ -28,13 +30,18 @@ function getTeamName(team: { name: string } | { name: string }[] | null) {
 
 export default async function MatchesPage() {
   const supabase = await createClient();
-  const { data: requests, error } = await supabase
-    .from("match_requests")
-    .select(
-      "id, title, city, area, age_group, skill_level, match_format, preferred_date, preferred_time, description, team:teams(name)",
-    )
-    .eq("status", "open")
-    .order("created_at", { ascending: false });
+  const setupMessage = getSupabaseSetupMessage();
+  const isSupabaseConfigured = Boolean(supabase);
+  const requestsResponse = supabase
+    ? await supabase
+        .from("match_requests")
+        .select(
+          "id, title, city, area, age_group, skill_level, match_format, preferred_date, preferred_time, description, team:teams(name)",
+        )
+        .eq("status", "open")
+        .order("created_at", { ascending: false })
+    : { data: [], error: null };
+  const { data: requests, error } = requestsResponse;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
@@ -60,7 +67,17 @@ export default async function MatchesPage() {
         </div>
       </section>
 
-      {error ? (
+      {!isSupabaseConfigured ? (
+        <div className="mt-6">
+          <SetupNotice
+            eyebrow="Match board unavailable"
+            title="Supabase is not configured yet"
+            description={setupMessage}
+            ctaHref="/"
+            ctaLabel="Return home"
+          />
+        </div>
+      ) : error ? (
         <section className="mt-6 rounded-[1.75rem] border border-amber-200 bg-amber-50 p-6 text-amber-900">
           We couldn&apos;t load the match board right now. Refresh the page and
           check Supabase if the issue continues.

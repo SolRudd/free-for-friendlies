@@ -1,10 +1,25 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { MatchRequestForm } from "@/components/forms/match-request-form";
+import { SetupNotice } from "@/components/site/setup-notice";
 import { buttonStyles } from "@/components/ui/button";
+import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 
 export default async function NewMatchRequestPage() {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return (
+      <SetupNotice
+        eyebrow="Match posting disabled"
+        title="Supabase is not configured yet"
+        description={getSupabaseSetupMessage()}
+        ctaHref="/"
+        ctaLabel="Return home"
+      />
+    );
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();

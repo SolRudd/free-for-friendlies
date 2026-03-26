@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 import type { FormState } from "@/lib/form-state";
 import {
   emptyToNull,
@@ -38,19 +40,36 @@ export async function createMatchRequest(
     };
   }
 
+  let supabase: SupabaseClient | null = null;
+
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    supabase = await createClient();
+  } catch {
+    return {
+      message: "We couldn't publish that request right now. Please try again.",
+      values,
+    };
+  }
 
-    if (!user) {
-      return {
-        message: "Your session has expired. Log in again and retry.",
-        values,
-      };
-    }
+  if (!supabase) {
+    return {
+      message: getSupabaseSetupMessage(),
+      values,
+    };
+  }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      message: "Your session has expired. Log in again and retry.",
+      values,
+    };
+  }
+
+  try {
     const { data: team, error: teamError } = await supabase
       .from("teams")
       .select("id")
@@ -85,14 +104,14 @@ export async function createMatchRequest(
         values,
       };
     }
-
-    revalidatePath("/dashboard");
-    revalidatePath("/matches");
-    redirect("/dashboard");
   } catch {
     return {
       message: "We couldn't publish that request right now. Please try again.",
       values,
     };
   }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/matches");
+  redirect("/dashboard");
 }

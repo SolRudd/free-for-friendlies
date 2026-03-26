@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 import { ensureProfile } from "@/lib/supabase/profile";
 import type { FormState } from "@/lib/form-state";
 import { pickFormValues, signInSchema, signUpSchema } from "@/lib/validation";
@@ -288,7 +289,7 @@ export async function signUp(
     next,
   });
 
-  let supabase: SupabaseClient;
+  let supabase: SupabaseClient | null;
 
   try {
     supabase = await createClient();
@@ -299,6 +300,13 @@ export async function signUp(
 
     return {
       message: "We couldn't start signup right now. Please try again.",
+      values,
+    };
+  }
+
+  if (!supabase) {
+    return {
+      message: getSupabaseSetupMessage(),
       values,
     };
   }
@@ -449,7 +457,7 @@ export async function signIn(
     next,
   });
 
-  let supabase: SupabaseClient;
+  let supabase: SupabaseClient | null;
 
   try {
     supabase = await createClient();
@@ -460,6 +468,13 @@ export async function signIn(
 
     return {
       message: "We couldn't start login right now. Please try again.",
+      values,
+    };
+  }
+
+  if (!supabase) {
+    return {
+      message: getSupabaseSetupMessage(),
       values,
     };
   }
@@ -528,7 +543,11 @@ export async function signIn(
 
 export async function signOut() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+
+  if (supabase) {
+    await supabase.auth.signOut();
+  }
+
   revalidatePath("/", "layout");
   redirect("/");
 }

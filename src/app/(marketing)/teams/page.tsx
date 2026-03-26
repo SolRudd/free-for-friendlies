@@ -1,16 +1,24 @@
 import Link from "next/link";
+import { SetupNotice } from "@/components/site/setup-notice";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 import { buttonStyles } from "@/components/ui/button";
 
 export default async function TeamsPage() {
   const supabase = await createClient();
-  const { data: teams, error } = await supabase
-    .from("teams")
-    .select(
-      "id, name, slug, city, area, age_group, skill_level, preferred_match_day, bio",
-    )
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
+  const setupMessage = getSupabaseSetupMessage();
+  const isSupabaseConfigured = Boolean(supabase);
+
+  const teamsResponse = supabase
+    ? await supabase
+        .from("teams")
+        .select(
+          "id, name, slug, city, area, age_group, skill_level, preferred_match_day, bio",
+        )
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+    : { data: [], error: null };
+  const { data: teams, error } = teamsResponse;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
@@ -37,7 +45,17 @@ export default async function TeamsPage() {
         </div>
       </section>
 
-      {error ? (
+      {!isSupabaseConfigured ? (
+        <div className="mt-6">
+          <SetupNotice
+            eyebrow="Directory unavailable"
+            title="Supabase is not configured yet"
+            description={setupMessage}
+            ctaHref="/"
+            ctaLabel="Return home"
+          />
+        </div>
+      ) : error ? (
         <section className="mt-6 rounded-[1.75rem] border border-amber-200 bg-amber-50 p-6 text-amber-900">
           We couldn&apos;t load the team directory right now. Refresh the page
           and check Supabase if the problem continues.

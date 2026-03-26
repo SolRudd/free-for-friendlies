@@ -1,10 +1,16 @@
+import { BrandLogo } from "@/components/site/brand-logo";
+import { SetupNotice } from "@/components/site/setup-notice";
 import { SignUpForm } from "@/components/forms/signup-form";
+import { getSupabaseSetupMessage, hasSupabasePublicEnv } from "@/lib/supabase/env";
 
 export default function SignUpPage() {
+  const isSupabaseConfigured = hasSupabasePublicEnv();
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
         <section className="rounded-[2rem] border border-[color:var(--border)] bg-[color:rgba(15,123,88,0.94)] p-8 text-white shadow-[0_24px_60px_rgba(15,123,88,0.18)]">
+          <BrandLogo className="w-[260px] brightness-[1.08] saturate-[1.1]" />
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">
             Create your account
           </p>
@@ -27,7 +33,17 @@ export default function SignUpPage() {
             straight to the dashboard to create your first team.
           </p>
           <div className="mt-8">
-            <SignUpForm />
+            {isSupabaseConfigured ? (
+              <SignUpForm />
+            ) : (
+              <SetupNotice
+                eyebrow="Auth disabled"
+                title="Supabase is not configured yet"
+                description={getSupabaseSetupMessage()}
+                ctaHref="/"
+                ctaLabel="Return home"
+              />
+            )}
           </div>
         </section>
       </div>

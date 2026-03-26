@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { BrandLogo } from "@/components/site/brand-logo";
+import { SetupNotice } from "@/components/site/setup-notice";
 import { buttonStyles } from "@/components/ui/button";
+import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 import { ensureProfile, getDisplayName } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
@@ -9,6 +12,21 @@ export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return (
+      <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+        <SetupNotice
+          eyebrow="Dashboard unavailable"
+          title="Supabase is not configured yet"
+          description={getSupabaseSetupMessage()}
+          ctaHref="/"
+          ctaLabel="Return home"
+        />
+      </main>
+    );
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -57,6 +75,7 @@ export default async function DashboardLayout({
       <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
         <aside className="space-y-5">
           <div className="rounded-[2rem] border border-[color:var(--border)] bg-white p-6 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
+            <BrandLogo className="w-[220px]" />
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
               Dashboard
             </p>

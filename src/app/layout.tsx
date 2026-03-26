@@ -10,6 +10,17 @@ export const metadata: Metadata = {
   },
   description:
     "Create a grassroots football team profile, post friendly requests, and find local opposition faster.",
+  icons: {
+    icon: [
+      {
+        url: "/brand/favicon.png",
+        type: "image/png",
+        sizes: "512x512",
+      },
+    ],
+    shortcut: "/brand/favicon.png",
+    apple: "/brand/favicon.png",
+  },
 };
 
 export default async function RootLayout({

@@ -1,6 +1,16 @@
 import { TeamForm } from "@/components/forms/team-form";
+import { SetupNotice } from "@/components/site/setup-notice";
+import { getSupabaseSetupMessage } from "@/lib/supabase/env";
+import { createClient } from "@/lib/supabase/server";
 
-export default function NewTeamPage() {
+export default async function NewTeamPage() {
+  const supabase = await createClient();
+  const user = supabase
+    ? (
+        await supabase.auth.getUser()
+      ).data.user
+    : null;
+
   return (
     <section className="rounded-[2rem] border border-[color:var(--border)] bg-white p-8 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
       <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
@@ -14,7 +24,17 @@ export default function NewTeamPage() {
         another organiser can tell quickly whether your side is a fit.
       </p>
       <div className="mt-8">
-        <TeamForm />
+        {supabase ? (
+          <TeamForm defaultContactEmail={user?.email ?? ""} />
+        ) : (
+          <SetupNotice
+            eyebrow="Team setup disabled"
+            title="Supabase is not configured yet"
+            description={getSupabaseSetupMessage()}
+            ctaHref="/"
+            ctaLabel="Return home"
+          />
+        )}
       </div>
     </section>
   );

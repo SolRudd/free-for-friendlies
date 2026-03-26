@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DashboardNotice } from "@/components/dashboard/dashboard-notice";
 import { createClient } from "@/lib/supabase/server";
 import { buttonStyles } from "@/components/ui/button";
 
@@ -20,6 +21,11 @@ function formatDate(value: string | null) {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return null;
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -49,6 +55,8 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <DashboardNotice />
+
       <section className="rounded-[2rem] border border-[color:var(--border)] bg-white p-8 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
           Overview
@@ -158,6 +166,9 @@ export default async function DashboardPage() {
                   <h3 className="text-xl font-semibold text-[var(--foreground)]">
                     {team.name}
                   </h3>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+                    Team context
+                  </p>
                   <p className="mt-2 text-sm text-[var(--muted)]">
                     {[team.city, team.area].filter(Boolean).join(" · ") ||
                       "Location pending"}

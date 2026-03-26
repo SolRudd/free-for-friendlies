@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 import { slugify } from "@/lib/utils/slugify";
 import type { FormState } from "@/lib/form-state";
 import { emptyToNull, pickFormValues, teamSchema } from "@/lib/validation";
@@ -20,7 +22,7 @@ const teamFields = [
 
 async function generateTeamSlug(
   baseName: string,
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: SupabaseClient,
 ) {
   const baseSlug = slugify(baseName) || `team-${crypto.randomUUID().slice(0, 8)}`;
   const { data, error } = await supabase
@@ -62,20 +64,39 @@ export async function createTeam(
     };
   }
 
+  let supabase: SupabaseClient | null = null;
+
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    supabase = await createClient();
+  } catch {
+    return {
+      message: "We couldn't save that team right now. Please try again.",
+      values,
+    };
+  }
 
-    if (!user) {
-      return {
-        message: "Your session has expired. Log in again and retry.",
-        values,
-      };
-    }
+  if (!supabase) {
+    return {
+      message: getSupabaseSetupMessage(),
+      values,
+    };
+  }
 
-    const slug = await generateTeamSlug(parsed.data.name, supabase);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      message: "Your session has expired. Log in again and retry.",
+      values,
+    };
+  }
+
+  let slug = "";
+
+  try {
+    slug = await generateTeamSlug(parsed.data.name, supabase);
 
     const { error } = await supabase.from("teams").insert({
       owner_id: user.id,
@@ -100,14 +121,14 @@ export async function createTeam(
         values,
       };
     }
-
-    revalidatePath("/dashboard");
-    revalidatePath("/teams");
-    redirect("/dashboard");
   } catch {
     return {
       message: "We couldn't save that team right now. Please try again.",
       values,
     };
   }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/teams");
+  redirect(`/dashboard?message=team-created&team=${encodeURIComponent(parsed.data.name)}&slug=${encodeURIComponent(slug)}`);
 }
