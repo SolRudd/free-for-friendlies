@@ -6,12 +6,18 @@ type BrandLogoProps = {
   href?: string;
   className?: string;
   priority?: boolean;
+  /**
+   * "standard" — coloured logo, use on light/warm surfaces.
+   * "white"    — inverted to pure white, use on dark/green/rich surfaces.
+   */
+  variant?: "standard" | "white";
 };
 
 export function BrandLogo({
   href = "/",
   className,
   priority = false,
+  variant = "standard",
 }: BrandLogoProps) {
   const image = (
     <Image
@@ -20,7 +26,11 @@ export function BrandLogo({
       width={1000}
       height={275}
       priority={priority}
-      className={cn("h-auto w-[230px] sm:w-[280px]", className)}
+      className={cn(
+        "h-auto w-[230px] sm:w-[280px]",
+        variant === "white" && "brightness-0 invert",
+        className,
+      )}
     />
   );
 

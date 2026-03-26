@@ -20,17 +20,17 @@ export async function SiteHeader() {
     : null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:rgba(242,239,232,0.92)] backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-6">
-          <BrandLogo priority />
+    <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:rgba(244,239,228,0.95)] backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div className="flex items-center gap-7">
+          <BrandLogo priority className="w-[170px] sm:w-[200px]" />
 
-          <nav className="hidden items-center gap-5 text-sm text-[var(--muted)] md:flex">
+          <nav className="hidden items-center gap-6 text-sm md:flex">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+                className="font-medium text-[var(--muted)] transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
               >
                 {link.label}
               </Link>
@@ -45,12 +45,12 @@ export async function SiteHeader() {
             </span>
           ) : null}
 
-          <nav className="flex items-center gap-3 text-sm text-[var(--muted)] md:hidden">
+          <nav className="flex items-center gap-4 text-sm text-[var(--muted)] md:hidden">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+                className="font-medium transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
               >
                 {link.label}
               </Link>

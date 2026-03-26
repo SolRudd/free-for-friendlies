@@ -1,15 +1,28 @@
 @import "tailwindcss";
 
 :root {
+  /* Light surface palette */
   --background: #f2efe8;
-  --foreground: #16251e;
-  --muted: #5f6b64;
+  --foreground: #111c15;
+  --muted: #536159;
   --accent: #0f7b58;
   --accent-strong: #0a6045;
-  --accent-soft: #d8ede3;
-  --surface: rgba(255, 255, 255, 0.78);
-  --surface-alt: #e6e0d4;
-  --border: rgba(22, 37, 30, 0.12);
+  --accent-soft: #d6ebe1;
+  --surface: rgba(255, 255, 255, 0.80);
+  --surface-alt: #e8e2d6;
+  --border: rgba(17, 28, 21, 0.10);
+
+  /* Dark / atmospheric surfaces — floodlit pitch */
+  --pitch-dark: #0b1810;
+  --pitch-deep: #112219;
+  --pitch-surface: #1a2e22;
+  --pitch-border: rgba(255, 255, 255, 0.08);
+  --pitch-muted: rgba(255, 255, 255, 0.48);
+  --pitch-text: rgba(255, 255, 255, 0.88);
+
+  /* Structural accent helpers */
+  --accent-line: rgba(15, 123, 88, 0.24);
+  --accent-glow: rgba(15, 123, 88, 0.10);
 }
 
 html {
@@ -23,13 +36,14 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(15, 123, 88, 0.14), transparent 30%),
-    radial-gradient(circle at top right, rgba(188, 158, 85, 0.14), transparent 26%),
-    linear-gradient(180deg, #f6f1e8 0%, #efe8dc 100%);
+    radial-gradient(circle at top left, rgba(15, 123, 88, 0.10), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(188, 158, 85, 0.08), transparent 22%),
+    linear-gradient(180deg, #f4efe4 0%, #ede6d9 100%);
   color: var(--foreground);
   min-height: 100vh;
-  font-family: "Avenir Next", "Segoe UI", "Trebuchet MS", sans-serif;
+  font-family: "Avenir Next", "Gill Sans MT", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -45,5 +59,5 @@ textarea {
 }
 
 ::selection {
-  background: rgba(15, 123, 88, 0.22);
+  background: rgba(15, 123, 88, 0.20);
 }

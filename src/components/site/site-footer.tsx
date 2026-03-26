@@ -3,26 +3,70 @@ import { BrandLogo } from "@/components/site/brand-logo";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-[color:var(--border)] bg-white">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 text-sm text-[var(--muted)] sm:px-6 md:flex-row md:items-end md:justify-between">
-        <div className="max-w-md space-y-2">
-          <BrandLogo className="w-[220px]" />
-          <p>
-            A focused MVP for grassroots football organisers to create teams,
-            post friendly requests, and find local opposition faster.
-          </p>
+    <footer className="border-t border-[color:var(--pitch-border)] bg-[color:var(--pitch-dark)]">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-xs space-y-4">
+            <BrandLogo variant="white" className="w-[190px] sm:w-[210px]" />
+            <p className="text-sm leading-6 text-[color:var(--pitch-muted)]">
+              A focused platform for grassroots football organisers. Create
+              team profiles, post friendly requests, and find local opposition.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-10 text-sm">
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--pitch-muted)]">
+                Platform
+              </p>
+              <nav className="flex flex-col gap-2.5">
+                <Link
+                  className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+                  href="/teams"
+                >
+                  Browse teams
+                </Link>
+                <Link
+                  className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+                  href="/matches"
+                >
+                  Match board
+                </Link>
+                <Link
+                  className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+                  href="/signup"
+                >
+                  Create account
+                </Link>
+              </nav>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--pitch-muted)]">
+                Account
+              </p>
+              <nav className="flex flex-col gap-2.5">
+                <Link
+                  className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+                  href="/login"
+                >
+                  Log in
+                </Link>
+                <Link
+                  className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+                  href="/dashboard"
+                >
+                  Dashboard
+                </Link>
+              </nav>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-4">
-          <Link className="hover:text-[var(--foreground)]" href="/teams">
-            Browse teams
-          </Link>
-          <Link className="hover:text-[var(--foreground)]" href="/matches">
-            Browse matches
-          </Link>
-          <Link className="hover:text-[var(--foreground)]" href="/signup">
-            Create account
-          </Link>
+        <div className="mt-10 border-t border-[color:var(--pitch-border)] pt-6">
+          <p className="text-xs text-[color:var(--pitch-muted)]">
+            Free For Friendlies &mdash; Grassroots football coordination.
+          </p>
         </div>
       </div>
     </footer>
