@@ -9,9 +9,11 @@ export function SiteFooter() {
           <div className="max-w-xs space-y-4">
             <BrandLogo variant="white" className="w-[190px] sm:w-[210px]" />
             <p className="text-sm leading-6 text-[color:var(--pitch-muted)]">
-              Early-access software for grassroots football organisers. Build a
-              proper club profile, post live fixture needs, and find better
-              local opposition.
+              Early-access software for grassroots football people trying to
+              represent their side properly and keep the fixture list moving.
+            </p>
+            <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+              Clubs, schools, youth teams, community football
             </p>
           </div>
 
@@ -37,7 +39,7 @@ export function SiteFooter() {
                   className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
                   href="/signup"
                 >
-                  Create account
+                  Start your club profile
                 </Link>
               </nav>
             </div>

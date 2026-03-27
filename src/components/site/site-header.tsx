@@ -24,7 +24,12 @@ export async function SiteHeader() {
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-7">
           <div className="flex items-center gap-3">
-            <BrandLogo priority className="w-[170px] sm:w-[200px]" />
+            <div className="space-y-1">
+              <BrandLogo priority className="w-[170px] sm:w-[200px]" />
+              <p className="hidden pl-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--muted)] xl:block">
+                Club profiles, fixture board, organiser dashboard
+              </p>
+            </div>
             <span className="hidden rounded-full border border-[color:rgba(17,28,21,0.08)] bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] lg:inline-flex">
               Early access beta
             </span>

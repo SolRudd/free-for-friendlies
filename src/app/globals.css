@@ -37,9 +37,11 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(15, 132, 88, 0.14), transparent 30%),
+    radial-gradient(circle at top left, rgba(15, 132, 88, 0.16), transparent 30%),
+    radial-gradient(circle at top center, rgba(200, 155, 60, 0.10), transparent 22%),
     radial-gradient(circle at top right, rgba(200, 155, 60, 0.12), transparent 24%),
-    radial-gradient(circle at bottom left, rgba(15, 132, 88, 0.08), transparent 26%),
+    radial-gradient(circle at bottom left, rgba(15, 132, 88, 0.09), transparent 26%),
+    linear-gradient(90deg, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 120px),
     linear-gradient(180deg, #f3efe6 0%, #ebe3d4 100%);
   color: var(--foreground);
   min-height: 100vh;

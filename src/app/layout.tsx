@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s | Free For Friendlies",
   },
   description:
-    "Build a grassroots football club profile, post fixture needs, and find better local opposition faster.",
+    "Build a proper grassroots football club profile, post real fixture needs, and find better local opposition faster.",
   icons: {
     icon: [
       {

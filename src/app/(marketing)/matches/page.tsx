@@ -175,20 +175,24 @@ export default async function MatchesPage({
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
-                Fixture board
+                Live fixture board
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
                 Early access beta
               </span>
             </div>
-            <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-[-0.03em] text-white md:text-5xl">
-              Live fixture needs from grassroots sides looking for the right opponent.
+            <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-[-0.035em] text-white md:text-5xl">
+              Fixture posts that read like real football opportunities, not generic notices.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-8 text-[color:var(--pitch-muted)]">
-              Read the football detail first: age group, format, level, venue
-              situation, and how far the team is willing to travel. This board
-              is built to make a fixture decision faster.
+              Age group, level, format, venue situation, travel range, date,
+              and kick-off all sit in clear view so organisers can decide
+              quickly whether a game looks sensible.
+            </p>
+            <p className="mt-3 max-w-2xl text-sm uppercase tracking-[0.16em] text-white/52">
+              For clubs, schools, youth football, community teams, and local
+              organisers trying to fill real dates.
             </p>
           </div>
 
@@ -201,7 +205,7 @@ export default async function MatchesPage({
             </div>
             <div className="rounded-[1.6rem] border border-white/10 bg-white/6 px-5 py-4 text-right">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
-                Venue-flexible posts
+                Home or flexible venue
               </p>
               <p className="mt-2 text-3xl font-bold">
                 {
@@ -224,7 +228,7 @@ export default async function MatchesPage({
               className: "bg-white text-[var(--foreground)] hover:bg-[var(--surface-alt)]",
             })}
           >
-            {user ? "Post a fixture need" : "Create a team and post"}
+            {user ? "Put a fixture on the board" : "Create a team and post"}
           </Link>
           <Link
             href="/teams"
@@ -312,13 +316,18 @@ export default async function MatchesPage({
                           />
                           <div>
                             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                              Fixture wanted
+                              Opponent wanted
                             </p>
                             <h2 className="mt-1 text-xl font-bold text-[var(--foreground)]">
                               {request.title}
                             </h2>
                             <p className="mt-1 text-sm text-[var(--muted)]">
                               {team.name || "Team"}
+                              {request.city || request.area
+                                ? ` · ${[request.city, request.area]
+                                    .filter(Boolean)
+                                    .join(", ")}`
+                                : ""}
                             </p>
                           </div>
                         </div>
@@ -346,6 +355,11 @@ export default async function MatchesPage({
                         {request.venue_status ? (
                           <span className="rounded-full bg-[var(--surface-alt)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
                             {request.venue_status}
+                          </span>
+                        ) : null}
+                        {request.travel_willingness ? (
+                          <span className="rounded-full bg-[var(--surface-alt)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
+                            {request.travel_willingness}
                           </span>
                         ) : null}
                       </div>

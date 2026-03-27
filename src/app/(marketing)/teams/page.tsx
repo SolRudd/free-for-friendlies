@@ -189,6 +189,10 @@ export default async function TeamsPage({
     const approvedMembers = teamCounts.get(team.id) ?? 0;
     return approvedMembers < TEAM_APPROVED_MEMBER_LIMIT;
   }).length;
+  const hostReadyTeams = allTeams.filter((team) =>
+    (team.pitch_status ?? "").toLowerCase().includes("host") ||
+    (team.pitch_status ?? "").toLowerCase().includes("flex"),
+  ).length;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
@@ -203,7 +207,7 @@ export default async function TeamsPage({
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
-                Club board
+                Local club board
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
@@ -211,22 +215,32 @@ export default async function TeamsPage({
               </span>
             </div>
 
-            <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-[-0.03em] text-white md:text-5xl">
-              Real club profiles for grassroots teams looking for better fixtures.
+            <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-[-0.035em] text-white md:text-5xl">
+              Club cards that tell you quickly whether a side looks right for the fixture.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-8 text-[color:var(--pitch-muted)]">
-              Browse sides by age group, level, format, and matchday fit.
-              Every card is built to answer the real football questions fast:
-              can they host, will they travel, and are they a sensible fixture?
+              This is the public side of the network: club profiles shaped
+              around the details organisers scan first, from area and level to
+              pitch situation, travel range, format, and squad shape.
+            </p>
+            <p className="mt-3 max-w-2xl text-sm uppercase tracking-[0.16em] text-white/52">
+              Built for Sunday sides, youth teams, school staff, academy
+              organisers, and community football.
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-[1.6rem] border border-white/10 bg-white/6 px-5 py-4 text-right">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
                 Active club profiles
               </p>
               <p className="mt-2 text-3xl font-bold">{allTeams.length}</p>
+            </div>
+            <div className="rounded-[1.6rem] border border-white/10 bg-white/6 px-5 py-4 text-right">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
+                Can host or flex
+              </p>
+              <p className="mt-2 text-3xl font-bold">{hostReadyTeams}</p>
             </div>
             <div className="rounded-[1.6rem] border border-white/10 bg-white/6 px-5 py-4 text-right">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
@@ -246,7 +260,7 @@ export default async function TeamsPage({
                 className: "bg-white text-[var(--foreground)] hover:bg-[var(--surface-alt)]",
               })}
             >
-              {ownedTeam ? "Manage your club profile" : "Create your club profile"}
+              {ownedTeam ? "Manage your club profile" : "Put your team on the board"}
             </Link>
           ) : (
             <Link
@@ -256,7 +270,7 @@ export default async function TeamsPage({
                 className: "bg-white text-[var(--foreground)] hover:bg-[var(--surface-alt)]",
               })}
             >
-              Set up your team
+              Put your team on the board
             </Link>
           )}
           <Link
@@ -491,6 +505,10 @@ export default async function TeamsPage({
                             <h2 className="mt-1 text-xl font-bold text-[var(--foreground)]">
                               {team.name}
                             </h2>
+                            <p className="mt-1 text-sm text-[var(--muted)]">
+                              {[team.city, team.area].filter(Boolean).join(", ") ||
+                                "Location pending"}
+                            </p>
                           </div>
                         </div>
 
@@ -521,35 +539,47 @@ export default async function TeamsPage({
                         ) : null}
                       </div>
 
-                      <div className="space-y-2.5 text-sm text-[var(--muted)]">
-                        <div className="flex items-center gap-2">
-                          <MapPin size={14} className="shrink-0 text-[var(--accent)]" />
-                          <span>
-                            {[team.city, team.area].filter(Boolean).join(", ") ||
-                              "Location pending"}
-                          </span>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-[1.35rem] border border-[color:var(--border)] bg-[var(--surface)] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                            Matchday
+                          </p>
+                          <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                            <Calendar size={14} className="text-[var(--accent)]" />
+                            {team.preferred_match_day || "Not added yet"}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar size={14} className="shrink-0 text-[var(--accent)]" />
-                          <span>
-                            {team.pitch_status || "Pitch situation not added yet"}
-                          </span>
+                        <div className="rounded-[1.35rem] border border-[color:var(--border)] bg-[var(--surface)] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                            Venue
+                          </p>
+                          <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                            <MapPin size={14} className="text-[var(--accent)]" />
+                            {team.pitch_status || "Not added yet"}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Shield size={14} className="shrink-0 text-[var(--accent)]" />
-                          <span>
-                            {team.travel_willingness ||
-                              "Travel preference not added yet"}
-                          </span>
+                        <div className="rounded-[1.35rem] border border-[color:var(--border)] bg-[var(--surface)] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                            Travel
+                          </p>
+                          <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                            <Shield size={14} className="text-[var(--accent)]" />
+                            {team.travel_willingness || "Not added yet"}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Users size={14} className="shrink-0 text-[var(--accent)]" />
-                          <span>
-                            {squadCount} in squad
+                        <div className="rounded-[1.35rem] border border-[color:var(--border)] bg-[var(--surface)] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                            Squad
+                          </p>
+                          <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                            <Users size={14} className="text-[var(--accent)]" />
+                            {squadCount} registered
+                          </div>
+                          <p className="mt-1 text-xs text-[var(--muted)]">
                             {placesLeft > 0
-                              ? ` · ${placesLeft} place${placesLeft === 1 ? "" : "s"} left`
-                              : " · squad full"}
-                          </span>
+                              ? `${placesLeft} place${placesLeft === 1 ? "" : "s"} left`
+                              : "Squad full"}
+                          </p>
                         </div>
                       </div>
 
