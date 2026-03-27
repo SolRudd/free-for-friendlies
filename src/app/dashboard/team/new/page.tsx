@@ -1,15 +1,42 @@
+import { redirect } from "next/navigation";
 import { TeamForm } from "@/components/forms/team-form";
 import { SetupNotice } from "@/components/site/setup-notice";
-import { getSupabaseSetupMessage } from "@/lib/supabase/env";
+import {
+  getSupabaseSetupMessage,
+  hasSupabaseServiceRoleKey,
+} from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function NewTeamPage() {
   const supabase = await createClient();
-  const user = supabase
-    ? (
-        await supabase.auth.getUser()
-      ).data.user
-    : null;
+
+  if (!supabase) {
+    return (
+      <SetupNotice
+        eyebrow="Team setup disabled"
+        title="Supabase is not configured yet"
+        description={getSupabaseSetupMessage()}
+        ctaHref="/"
+        ctaLabel="Return home"
+      />
+    );
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: existingTeam } = await supabase
+    .from("teams")
+    .select("id")
+    .eq("owner_id", user!.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingTeam) {
+    redirect("/dashboard/team?message=team-exists");
+  }
 
   return (
     <section className="rounded-[2rem] border border-[color:var(--border)] bg-white p-8 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
@@ -17,24 +44,17 @@ export default async function NewTeamPage() {
         Team setup
       </p>
       <h1 className="mt-3 text-3xl font-semibold text-[var(--foreground)]">
-        Create a team profile
+        Create your team profile
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-        This is the main public object in the MVP. Keep it accurate and clear so
-        another organiser can tell quickly whether your side is a fit.
+        Each account manages one team in this prototype. Set it up properly so
+        your squad, public directory card, and match requests all stay aligned.
       </p>
       <div className="mt-8">
-        {supabase ? (
-          <TeamForm defaultContactEmail={user?.email ?? ""} />
-        ) : (
-          <SetupNotice
-            eyebrow="Team setup disabled"
-            title="Supabase is not configured yet"
-            description={getSupabaseSetupMessage()}
-            ctaHref="/"
-            ctaLabel="Return home"
-          />
-        )}
+        <TeamForm
+          allowLogoUpload={hasSupabaseServiceRoleKey()}
+          defaultContactEmail={user?.email ?? ""}
+        />
       </div>
     </section>
   );

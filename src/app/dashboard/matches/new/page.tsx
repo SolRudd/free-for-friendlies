@@ -23,13 +23,15 @@ export default async function NewMatchRequestPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data: teams, error } = user
+  const { data: managedTeam, error } = user
     ? await supabase
         .from("teams")
-        .select("id, name")
+        .select("id, name, logo_url, city, area")
         .eq("owner_id", user.id)
         .order("created_at", { ascending: false })
-    : { data: [], error: null };
+        .limit(1)
+        .maybeSingle()
+    : { data: null, error: null };
 
   if (error) {
     return (
@@ -55,7 +57,7 @@ export default async function NewMatchRequestPage() {
         Keep the post direct and specific so another organiser can decide fast.
       </p>
 
-      {(teams ?? []).length === 0 ? (
+      {!managedTeam ? (
         <div className="mt-8 rounded-[1.75rem] border border-dashed border-[color:var(--border)] bg-[var(--surface)] p-6">
           <h2 className="text-xl font-semibold text-[var(--foreground)]">
             Create a team first
@@ -72,7 +74,7 @@ export default async function NewMatchRequestPage() {
         </div>
       ) : (
         <div className="mt-8">
-          <MatchRequestForm teams={teams ?? []} />
+          <MatchRequestForm team={managedTeam} />
         </div>
       )}
     </section>

@@ -4,16 +4,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 
-const navItems = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/team/new", label: "Create team" },
-  { href: "/dashboard/matches/new", label: "Post request" },
-  { href: "/teams", label: "Public teams" },
-  { href: "/matches", label: "Public matches" },
-];
+function getNavItems(hasTeam: boolean) {
+  return [
+    { href: "/dashboard", label: "Overview" },
+    {
+      href: hasTeam ? "/dashboard/team" : "/dashboard/team/new",
+      label: hasTeam ? "Manage team" : "Create team",
+    },
+    { href: "/dashboard/matches/new", label: "Post request" },
+    { href: "/teams", label: "Public teams" },
+    { href: "/matches", label: "Public matches" },
+  ];
+}
 
-export function DashboardNav() {
+export function DashboardNav({ hasTeam }: { hasTeam: boolean }) {
   const pathname = usePathname();
+  const navItems = getNavItems(hasTeam);
 
   return (
     <nav className="space-y-2" aria-label="Dashboard navigation">

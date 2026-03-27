@@ -7,6 +7,7 @@ import { buttonStyles } from "@/components/ui/button";
 import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 import { ensureProfile, getDisplayName } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import { TeamBadge } from "@/components/team/team-badge";
 
 export default async function DashboardLayout({
   children,
@@ -65,11 +66,20 @@ export default async function DashboardLayout({
     );
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, email, location")
-    .eq("id", user.id)
-    .maybeSingle();
+  const [{ data: profile }, { data: managedTeam }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("full_name, email, location")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("teams")
+      .select("id, name, logo_url")
+      .eq("owner_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
@@ -93,11 +103,34 @@ export default async function DashboardLayout({
               Keep your team page sharp, post clear requests, and use the
               public boards to find opponents.
             </p>
+
+            {managedTeam ? (
+              <div className="mt-5 rounded-[1.5rem] border border-[color:var(--border)] bg-[var(--surface)] p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+                  Managing
+                </p>
+                <div className="mt-3 flex items-center gap-3">
+                  <TeamBadge
+                    name={managedTeam.name}
+                    logoUrl={managedTeam.logo_url ?? undefined}
+                    size="sm"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {managedTeam.name}
+                    </p>
+                    <p className="text-xs text-[var(--muted)]">
+                      One active team profile per account
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           {/* Nav */}
           <div className="rounded-[2rem] border border-[color:var(--border)] bg-white p-4 shadow-[0_16px_40px_rgba(22,37,30,0.05)]">
-            <DashboardNav />
+            <DashboardNav hasTeam={Boolean(managedTeam)} />
           </div>
         </aside>
 

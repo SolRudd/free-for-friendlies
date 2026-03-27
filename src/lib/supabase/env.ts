@@ -42,6 +42,10 @@ export function getSupabaseServiceRoleKey() {
   return process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
 }
 
+export function hasSupabaseServiceRoleKey() {
+  return Boolean(getSupabaseServiceRoleKey());
+}
+
 export function getSupabaseSetupMessage() {
   const env = getSupabasePublicEnv();
 

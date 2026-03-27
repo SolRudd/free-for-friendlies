@@ -22,6 +22,15 @@ export const teamSchema = z.object({
   bio: z.string().trim().max(600, "Keep the bio under 600 characters.").optional(),
 });
 
+export const reviewJoinRequestSchema = z.object({
+  membership_id: z.string().uuid("Select a valid join request."),
+  decision: z.enum(["approve", "reject"]),
+});
+
+export const joinTeamSchema = z.object({
+  team_id: z.string().uuid("Select a valid team."),
+});
+
 export const matchRequestSchema = z.object({
   team_id: z.string().uuid("Select a valid team."),
   title: z.string().trim().min(8, "Add a clearer match request title."),

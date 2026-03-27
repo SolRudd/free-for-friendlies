@@ -31,6 +31,10 @@ function getMessage(messageKey: string | null) {
     return "Your session expired. Log back in to continue.";
   }
 
+  if (messageKey === "join-team") {
+    return "Log in to request a place in a squad.";
+  }
+
   return "";
 }
 

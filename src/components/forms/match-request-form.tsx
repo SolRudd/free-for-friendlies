@@ -2,24 +2,32 @@
 
 import { useActionState } from "react";
 import { createMatchRequest } from "@/app/actions/match";
-import { EMPTY_FORM_STATE } from "@/lib/form-state";
 import { FieldError } from "@/components/forms/field-error";
 import { FormAlert } from "@/components/forms/form-alert";
 import { SubmitButton } from "@/components/forms/submit-button";
+import { TeamBadge } from "@/components/team/team-badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { EMPTY_FORM_STATE } from "@/lib/form-state";
 
 type TeamOption = {
   id: string;
   name: string;
+  logo_url?: string | null;
+  city?: string | null;
+  area?: string | null;
 };
 
 type MatchRequestFormProps = {
-  teams: TeamOption[];
+  team?: TeamOption | null;
+  teams?: TeamOption[];
 };
 
-export function MatchRequestForm({ teams }: MatchRequestFormProps) {
+export function MatchRequestForm({
+  team = null,
+  teams = [],
+}: MatchRequestFormProps) {
   const [state, formAction] = useActionState(createMatchRequest, EMPTY_FORM_STATE);
   const getError = (field: string) => state.fieldErrors?.[field]?.[0];
 
@@ -27,30 +35,61 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
     <form action={formAction} className="space-y-5" noValidate>
       {state.message ? <FormAlert>{state.message}</FormAlert> : null}
 
-      <div>
-        <label htmlFor="match-team" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
-          Team
-        </label>
-        <Select
-          id="match-team"
-          name="team_id"
-          required
-          defaultValue={state.values?.team_id ?? ""}
-          aria-invalid={Boolean(getError("team_id"))}
-          aria-describedby={getError("team_id") ? "match-team-error" : undefined}
-        >
-          <option value="">Select your team</option>
-          {teams.map((team) => (
-            <option key={team.id} value={team.id}>
-              {team.name}
-            </option>
-          ))}
-        </Select>
-        <FieldError id="match-team-error" error={getError("team_id")} />
-      </div>
+      {team ? (
+        <div className="rounded-[1.75rem] border border-[color:var(--border)] bg-[var(--surface)] p-5">
+          <input type="hidden" name="team_id" value={team.id} />
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+            Posting as
+          </p>
+          <div className="mt-4 flex items-center gap-4">
+            <TeamBadge
+              name={team.name}
+              logoUrl={team.logo_url ?? undefined}
+              size="md"
+            />
+            <div>
+              <p className="text-base font-semibold text-[var(--foreground)]">
+                {team.name}
+              </p>
+              <p className="text-sm text-[var(--muted)]">
+                {[team.city, team.area].filter(Boolean).join(" · ") ||
+                  "Location pending"}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <label
+            htmlFor="match-team"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
+            Team
+          </label>
+          <Select
+            id="match-team"
+            name="team_id"
+            required
+            defaultValue={state.values?.team_id ?? ""}
+            aria-invalid={Boolean(getError("team_id"))}
+            aria-describedby={getError("team_id") ? "match-team-error" : undefined}
+          >
+            <option value="">Select your team</option>
+            {teams.map((teamOption) => (
+              <option key={teamOption.id} value={teamOption.id}>
+                {teamOption.name}
+              </option>
+            ))}
+          </Select>
+          <FieldError id="match-team-error" error={getError("team_id")} />
+        </div>
+      )}
 
       <div>
-        <label htmlFor="match-title" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+        <label
+          htmlFor="match-title"
+          className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+        >
           Match request title
         </label>
         <Input
@@ -70,7 +109,10 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
 
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="match-city" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+          <label
+            htmlFor="match-city"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
             City
           </label>
           <Input
@@ -86,7 +128,10 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
         </div>
 
         <div>
-          <label htmlFor="match-area" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+          <label
+            htmlFor="match-area"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
             Area
           </label>
           <Input
@@ -103,7 +148,10 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
 
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="match-age-group" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+          <label
+            htmlFor="match-age-group"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
             Age group
           </label>
           <Input
@@ -112,14 +160,19 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
             required
             defaultValue={state.values?.age_group ?? ""}
             aria-invalid={Boolean(getError("age_group"))}
-            aria-describedby={getError("age_group") ? "match-age-group-error" : undefined}
+            aria-describedby={
+              getError("age_group") ? "match-age-group-error" : undefined
+            }
             placeholder="Open age"
           />
           <FieldError id="match-age-group-error" error={getError("age_group")} />
         </div>
 
         <div>
-          <label htmlFor="match-skill-level" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+          <label
+            htmlFor="match-skill-level"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
             Skill level
           </label>
           <Input
@@ -128,16 +181,24 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
             required
             defaultValue={state.values?.skill_level ?? ""}
             aria-invalid={Boolean(getError("skill_level"))}
-            aria-describedby={getError("skill_level") ? "match-skill-level-error" : undefined}
+            aria-describedby={
+              getError("skill_level") ? "match-skill-level-error" : undefined
+            }
             placeholder="Intermediate"
           />
-          <FieldError id="match-skill-level-error" error={getError("skill_level")} />
+          <FieldError
+            id="match-skill-level-error"
+            error={getError("skill_level")}
+          />
         </div>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="match-format" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+          <label
+            htmlFor="match-format"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
             Match format
           </label>
           <Input
@@ -146,14 +207,19 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
             required
             defaultValue={state.values?.match_format ?? ""}
             aria-invalid={Boolean(getError("match_format"))}
-            aria-describedby={getError("match_format") ? "match-format-error" : undefined}
+            aria-describedby={
+              getError("match_format") ? "match-format-error" : undefined
+            }
             placeholder="11-a-side"
           />
           <FieldError id="match-format-error" error={getError("match_format")} />
         </div>
 
         <div>
-          <label htmlFor="match-preferred-time" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+          <label
+            htmlFor="match-preferred-time"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
             Preferred time
           </label>
           <Input
@@ -162,15 +228,23 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
             required
             defaultValue={state.values?.preferred_time ?? ""}
             aria-invalid={Boolean(getError("preferred_time"))}
-            aria-describedby={getError("preferred_time") ? "match-preferred-time-error" : undefined}
+            aria-describedby={
+              getError("preferred_time") ? "match-preferred-time-error" : undefined
+            }
             placeholder="10:30"
           />
-          <FieldError id="match-preferred-time-error" error={getError("preferred_time")} />
+          <FieldError
+            id="match-preferred-time-error"
+            error={getError("preferred_time")}
+          />
         </div>
       </div>
 
       <div>
-        <label htmlFor="match-preferred-date" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+        <label
+          htmlFor="match-preferred-date"
+          className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+        >
           Preferred date
         </label>
         <Input
@@ -180,13 +254,21 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
           required
           defaultValue={state.values?.preferred_date ?? ""}
           aria-invalid={Boolean(getError("preferred_date"))}
-          aria-describedby={getError("preferred_date") ? "match-preferred-date-error" : undefined}
+          aria-describedby={
+            getError("preferred_date") ? "match-preferred-date-error" : undefined
+          }
         />
-        <FieldError id="match-preferred-date-error" error={getError("preferred_date")} />
+        <FieldError
+          id="match-preferred-date-error"
+          error={getError("preferred_date")}
+        />
       </div>
 
       <div>
-        <label htmlFor="match-description" className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+        <label
+          htmlFor="match-description"
+          className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+        >
           Notes
         </label>
         <Textarea
@@ -194,7 +276,11 @@ export function MatchRequestForm({ teams }: MatchRequestFormProps) {
           name="description"
           defaultValue={state.values?.description ?? ""}
           aria-invalid={Boolean(getError("description"))}
-          aria-describedby={getError("description") ? "match-description-error" : "match-description-hint"}
+          aria-describedby={
+            getError("description")
+              ? "match-description-error"
+              : "match-description-hint"
+          }
           placeholder="Share whether you need home or away, how flexible the time is, and any key details."
         />
         <p id="match-description-hint" className="mt-2 text-sm text-[var(--muted)]">

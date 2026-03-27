@@ -73,13 +73,14 @@ export async function createMatchRequest(
     const { data: team, error: teamError } = await supabase
       .from("teams")
       .select("id")
-      .eq("id", parsed.data.team_id)
       .eq("owner_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
 
-    if (teamError || !team) {
+    if (teamError || !team || team.id !== parsed.data.team_id) {
       return {
-        message: "Choose one of your own teams before posting a match request.",
+        message: "Post match requests from the team currently managed by your account.",
         values,
       };
     }
