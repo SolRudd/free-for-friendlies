@@ -16,7 +16,10 @@ const teamFields = [
   "area",
   "age_group",
   "skill_level",
+  "team_format",
   "preferred_match_day",
+  "pitch_status",
+  "travel_willingness",
   "contact_email",
   "bio",
 ] as const;
@@ -198,7 +201,10 @@ export async function createTeam(
         bio: emptyToNull(parsed.data.bio ?? ""),
         age_group: parsed.data.age_group,
         skill_level: parsed.data.skill_level,
+        team_format: parsed.data.team_format,
         preferred_match_day: parsed.data.preferred_match_day,
+        pitch_status: parsed.data.pitch_status,
+        travel_willingness: parsed.data.travel_willingness,
         contact_email: parsed.data.contact_email,
         is_active: true,
       })
@@ -328,7 +334,10 @@ export async function updateTeam(
         bio: emptyToNull(parsed.data.bio ?? ""),
         age_group: parsed.data.age_group,
         skill_level: parsed.data.skill_level,
+        team_format: parsed.data.team_format,
         preferred_match_day: parsed.data.preferred_match_day,
+        pitch_status: parsed.data.pitch_status,
+        travel_willingness: parsed.data.travel_willingness,
         contact_email: parsed.data.contact_email,
         updated_at: new Date().toISOString(),
       })

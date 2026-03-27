@@ -89,9 +89,14 @@ export default async function DashboardLayout({
           <div className="rounded-[2rem] border border-[color:var(--border)] bg-white p-6 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
             <BrandLogo className="w-[190px]" />
             <div className="mt-5 border-t border-[color:var(--border)] pt-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                Dashboard
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                  Dashboard
+                </p>
+                <span className="rounded-full border border-[color:rgba(17,28,21,0.08)] bg-[var(--surface-alt)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                  Beta
+                </span>
+              </div>
               <h2 className="mt-2 text-xl font-bold text-[var(--foreground)]">
                 {profile?.full_name || getDisplayName(user)}
               </h2>
@@ -100,8 +105,8 @@ export default async function DashboardLayout({
               </p>
             </div>
             <p className="mt-4 text-xs leading-6 text-[var(--muted)]">
-              Keep your team page sharp, post clear requests, and use the
-              public boards to find opponents.
+              Keep your club profile sharp, post clear fixture needs, and use
+              the public boards to find better opponents.
             </p>
 
             {managedTeam ? (

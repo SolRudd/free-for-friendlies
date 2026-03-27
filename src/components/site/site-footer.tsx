@@ -9,8 +9,9 @@ export function SiteFooter() {
           <div className="max-w-xs space-y-4">
             <BrandLogo variant="white" className="w-[190px] sm:w-[210px]" />
             <p className="text-sm leading-6 text-[color:var(--pitch-muted)]">
-              A focused platform for grassroots football organisers. Create
-              team profiles, post friendly requests, and find local opposition.
+              Early-access software for grassroots football organisers. Build a
+              proper club profile, post live fixture needs, and find better
+              local opposition.
             </p>
           </div>
 
@@ -24,13 +25,13 @@ export function SiteFooter() {
                   className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
                   href="/teams"
                 >
-                  Browse teams
+                  Club board
                 </Link>
                 <Link
                   className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
                   href="/matches"
                 >
-                  Match board
+                  Fixture board
                 </Link>
                 <Link
                   className="text-[color:var(--pitch-text)] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
@@ -65,7 +66,8 @@ export function SiteFooter() {
 
         <div className="mt-10 border-t border-[color:var(--pitch-border)] pt-6">
           <p className="text-xs text-[color:var(--pitch-muted)]">
-            Free For Friendlies &mdash; Grassroots football coordination.
+            Free For Friendlies &mdash; early-access fixture coordination for
+            grassroots football.
           </p>
         </div>
       </div>

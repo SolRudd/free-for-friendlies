@@ -48,24 +48,24 @@ export default async function NewMatchRequestPage() {
   return (
     <section className="rounded-[2rem] border border-[color:var(--border)] bg-white p-8 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
       <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
-        Match board
+        Fixture board
       </p>
       <h1 className="mt-3 text-3xl font-semibold text-[var(--foreground)]">
-        Post a match request
+        Post a fixture need
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-        Keep the post direct and specific so another organiser can decide fast.
+        Make the football detail obvious so another organiser can decide fast.
       </p>
 
       {!managedTeam ? (
         <div className="mt-8 rounded-[1.75rem] border border-dashed border-[color:var(--border)] bg-[var(--surface)] p-6">
-          <h2 className="text-xl font-semibold text-[var(--foreground)]">
-            Create a team first
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-            Match requests must belong to one of your teams. Set up a team
-            profile first, then come back here to publish the request.
-          </p>
+            <h2 className="text-xl font-semibold text-[var(--foreground)]">
+              Create a team first
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
+            Fixture posts must belong to your managed team. Set up the club
+            profile first, then come back here to publish the slot.
+            </p>
           <div className="mt-6">
             <Link href="/dashboard/team/new" className={buttonStyles({})}>
               Create team

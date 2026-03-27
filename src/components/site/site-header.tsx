@@ -6,8 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { hasSupabasePublicEnv } from "@/lib/supabase/env";
 
 const links = [
-  { href: "/teams", label: "Teams" },
-  { href: "/matches", label: "Matches" },
+  { href: "/teams", label: "Club Board" },
+  { href: "/matches", label: "Fixture Board" },
 ];
 
 export async function SiteHeader() {
@@ -20,10 +20,15 @@ export async function SiteHeader() {
     : null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:rgba(244,239,228,0.95)] backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:rgba(244,239,228,0.94)] backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-7">
-          <BrandLogo priority className="w-[170px] sm:w-[200px]" />
+          <div className="flex items-center gap-3">
+            <BrandLogo priority className="w-[170px] sm:w-[200px]" />
+            <span className="hidden rounded-full border border-[color:rgba(17,28,21,0.08)] bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] lg:inline-flex">
+              Early access beta
+            </span>
+          </div>
 
           <nav className="hidden items-center gap-6 text-sm md:flex">
             {links.map((link) => (
@@ -43,7 +48,11 @@ export async function SiteHeader() {
             <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">
               Backend setup required
             </span>
-          ) : null}
+          ) : (
+            <span className="rounded-full border border-[color:rgba(17,28,21,0.08)] bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] lg:hidden">
+              Beta
+            </span>
+          )}
 
           <nav className="flex items-center gap-4 text-sm text-[var(--muted)] md:hidden">
             {links.map((link) => (

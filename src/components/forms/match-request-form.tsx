@@ -10,6 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { EMPTY_FORM_STATE } from "@/lib/form-state";
+import {
+  TEAM_FORMAT_OPTIONS,
+  TRAVEL_WILLINGNESS_OPTIONS,
+  VENUE_STATUS_OPTIONS,
+} from "@/lib/football";
 
 type TeamOption = {
   id: string;
@@ -90,7 +95,7 @@ export function MatchRequestForm({
           htmlFor="match-title"
           className="mb-2 block text-sm font-medium text-[var(--foreground)]"
         >
-          Match request title
+          Fixture title
         </label>
         <Input
           id="match-title"
@@ -99,10 +104,10 @@ export function MatchRequestForm({
           defaultValue={state.values?.title ?? ""}
           aria-invalid={Boolean(getError("title"))}
           aria-describedby={getError("title") ? "match-title-error" : "match-title-hint"}
-          placeholder="Looking for an open-age friendly next Sunday"
+          placeholder="Opponent wanted for open-age Sunday slot"
         />
         <p id="match-title-hint" className="mt-2 text-sm text-[var(--muted)]">
-          Make it easy to scan at a glance.
+          Make the fixture need obvious at a glance.
         </p>
         <FieldError id="match-title-error" error={getError("title")} />
       </div>
@@ -193,7 +198,7 @@ export function MatchRequestForm({
         </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-3">
         <div>
           <label
             htmlFor="match-format"
@@ -201,7 +206,7 @@ export function MatchRequestForm({
           >
             Match format
           </label>
-          <Input
+          <Select
             id="match-format"
             name="match_format"
             required
@@ -210,9 +215,45 @@ export function MatchRequestForm({
             aria-describedby={
               getError("match_format") ? "match-format-error" : undefined
             }
-            placeholder="11-a-side"
-          />
+          >
+            <option value="">Select format</option>
+            {TEAM_FORMAT_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
           <FieldError id="match-format-error" error={getError("match_format")} />
+        </div>
+
+        <div>
+          <label
+            htmlFor="match-venue-status"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
+            Venue status
+          </label>
+          <Select
+            id="match-venue-status"
+            name="venue_status"
+            required
+            defaultValue={state.values?.venue_status ?? ""}
+            aria-invalid={Boolean(getError("venue_status"))}
+            aria-describedby={
+              getError("venue_status") ? "match-venue-status-error" : undefined
+            }
+          >
+            <option value="">Select venue status</option>
+            {VENUE_STATUS_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
+          <FieldError
+            id="match-venue-status-error"
+            error={getError("venue_status")}
+          />
         </div>
 
         <div>
@@ -238,6 +279,44 @@ export function MatchRequestForm({
             error={getError("preferred_time")}
           />
         </div>
+      </div>
+
+      <div>
+        <label
+          htmlFor="match-travel-willingness"
+          className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+        >
+          Travel willingness
+        </label>
+        <Select
+          id="match-travel-willingness"
+          name="travel_willingness"
+          required
+          defaultValue={state.values?.travel_willingness ?? ""}
+          aria-invalid={Boolean(getError("travel_willingness"))}
+          aria-describedby={
+            getError("travel_willingness")
+              ? "match-travel-willingness-error"
+              : "match-travel-willingness-hint"
+          }
+        >
+          <option value="">Select travel range</option>
+          {TRAVEL_WILLINGNESS_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </Select>
+        <p
+          id="match-travel-willingness-hint"
+          className="mt-2 text-sm text-[var(--muted)]"
+        >
+          Make it clear whether you expect home, away, or a local compromise.
+        </p>
+        <FieldError
+          id="match-travel-willingness-error"
+          error={getError("travel_willingness")}
+        />
       </div>
 
       <div>
@@ -269,7 +348,7 @@ export function MatchRequestForm({
           htmlFor="match-description"
           className="mb-2 block text-sm font-medium text-[var(--foreground)]"
         >
-          Notes
+          Fixture notes
         </label>
         <Textarea
           id="match-description"
@@ -281,10 +360,10 @@ export function MatchRequestForm({
               ? "match-description-error"
               : "match-description-hint"
           }
-          placeholder="Share whether you need home or away, how flexible the time is, and any key details."
+          placeholder="Share the kind of opponent you want, whether officials are arranged, and any key matchday details."
         />
         <p id="match-description-hint" className="mt-2 text-sm text-[var(--muted)]">
-          Optional, but the extra detail usually brings better responses.
+          Optional, but stronger detail usually brings better fixture responses.
         </p>
         <FieldError id="match-description-error" error={getError("description")} />
       </div>

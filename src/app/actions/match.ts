@@ -20,6 +20,8 @@ const matchFields = [
   "age_group",
   "skill_level",
   "match_format",
+  "venue_status",
+  "travel_willingness",
   "preferred_date",
   "preferred_time",
   "description",
@@ -94,6 +96,8 @@ export async function createMatchRequest(
       age_group: parsed.data.age_group,
       skill_level: parsed.data.skill_level,
       match_format: parsed.data.match_format,
+      venue_status: parsed.data.venue_status,
+      travel_willingness: parsed.data.travel_willingness,
       preferred_date: parsed.data.preferred_date,
       preferred_time: parsed.data.preferred_time,
       status: "open",
@@ -114,5 +118,5 @@ export async function createMatchRequest(
 
   revalidatePath("/dashboard");
   revalidatePath("/matches");
-  redirect("/dashboard");
+  redirect("/dashboard?message=fixture-posted");
 }

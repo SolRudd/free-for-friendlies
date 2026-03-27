@@ -44,11 +44,11 @@ export default async function NewTeamPage() {
         Team setup
       </p>
       <h1 className="mt-3 text-3xl font-semibold text-[var(--foreground)]">
-        Create your team profile
+        Create your club profile
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
         Each account manages one team in this prototype. Set it up properly so
-        your squad, public directory card, and match requests all stay aligned.
+        your squad, public club card, and fixture posts all stay aligned.
       </p>
       <div className="mt-8">
         <TeamForm

@@ -1,12 +1,17 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, MapPin, Shield, Users } from "lucide-react";
 import { requestToJoinTeam } from "@/app/actions/team-membership";
+import { DirectoryFilters } from "@/components/directory/directory-filters";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { SetupNotice } from "@/components/site/setup-notice";
 import { TeamBadge } from "@/components/team/team-badge";
 import { TeamDirectoryNotice } from "@/components/team/team-directory-notice";
 import { buttonStyles } from "@/components/ui/button";
+import {
+  getUniqueFilterOptions,
+  TEAM_FORMAT_OPTIONS,
+} from "@/lib/football";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseSetupMessage } from "@/lib/supabase/env";
 import {
@@ -20,7 +25,44 @@ type MembershipStatus = {
   status: string;
 };
 
-export default async function TeamsPage() {
+type TeamRecord = {
+  id: string;
+  owner_id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  city: string | null;
+  area: string | null;
+  age_group: string | null;
+  skill_level: string | null;
+  team_format: string | null;
+  preferred_match_day: string | null;
+  pitch_status: string | null;
+  travel_willingness: string | null;
+  bio: string | null;
+};
+
+function getSearchValue(
+  params: Record<string, string | string[] | undefined>,
+  key: string,
+) {
+  const value = params[key];
+  return typeof value === "string" ? value : "";
+}
+
+export default async function TeamsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const filters = {
+    age_group: getSearchValue(params, "age_group"),
+    area: getSearchValue(params, "area"),
+    skill_level: getSearchValue(params, "skill_level"),
+    preferred_match_day: getSearchValue(params, "preferred_match_day"),
+    team_format: getSearchValue(params, "team_format"),
+  };
   const supabase = await createClient();
   const setupMessage = getSupabaseSetupMessage();
   const isSupabaseConfigured = Boolean(supabase);
@@ -34,12 +76,12 @@ export default async function TeamsPage() {
     ? await supabase
         .from("teams")
         .select(
-          "id, owner_id, name, slug, logo_url, city, area, age_group, skill_level, preferred_match_day, bio",
+          "id, owner_id, name, slug, logo_url, city, area, age_group, skill_level, team_format, preferred_match_day, pitch_status, travel_willingness, bio",
         )
         .eq("is_active", true)
         .order("created_at", { ascending: false })
     : { data: [], error: null };
-  const { data: teams, error } = teamsResponse;
+  const allTeams = (teamsResponse.data ?? []) as TeamRecord[];
 
   const [ownedTeamResponse, membershipsResponse, memberCountsResponse] = supabase
     ? await Promise.all([
@@ -91,51 +133,142 @@ export default async function TeamsPage() {
     );
   }
 
+  const filteredTeams = allTeams.filter((team) => {
+    const areaNeedle = filters.area.trim().toLowerCase();
+    const matchesArea = areaNeedle
+      ? [team.city, team.area]
+          .filter(Boolean)
+          .some((value) => value!.toLowerCase().includes(areaNeedle))
+      : true;
+
+    return (
+      (!filters.age_group || team.age_group === filters.age_group) &&
+      (!filters.skill_level || team.skill_level === filters.skill_level) &&
+      (!filters.preferred_match_day ||
+        team.preferred_match_day === filters.preferred_match_day) &&
+      (!filters.team_format || team.team_format === filters.team_format) &&
+      matchesArea
+    );
+  });
+
   const teamMemberFeaturesAvailable =
     !membershipsResponse.error && !memberCountsResponse.error;
+  const filterFields = [
+    {
+      name: "age_group",
+      label: "Age group",
+      options: getUniqueFilterOptions(allTeams.map((team) => team.age_group)),
+    },
+    {
+      name: "area",
+      label: "Area",
+      type: "text" as const,
+      placeholder: "Town, borough, or county",
+    },
+    {
+      name: "skill_level",
+      label: "Level",
+      options: getUniqueFilterOptions(allTeams.map((team) => team.skill_level)),
+    },
+    {
+      name: "preferred_match_day",
+      label: "Preferred day",
+      options: getUniqueFilterOptions(
+        allTeams.map((team) => team.preferred_match_day),
+      ),
+    },
+    {
+      name: "team_format",
+      label: "Format",
+      options: getUniqueFilterOptions(
+        allTeams.map((team) => team.team_format).concat([...TEAM_FORMAT_OPTIONS]),
+      ),
+    },
+  ];
+  const openSquadTeams = allTeams.filter((team) => {
+    const approvedMembers = teamCounts.get(team.id) ?? 0;
+    return approvedMembers < TEAM_APPROVED_MEMBER_LIMIT;
+  }).length;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-      <section className="rounded-[2rem] border border-[color:var(--border)] bg-white p-8 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
-        <div className="flex flex-wrap items-start justify-between gap-6">
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
-              Club network
-            </p>
-            <h1 className="mt-3 text-4xl font-bold text-[var(--foreground)] md:text-5xl">
-              Browse active teams
-            </h1>
-            <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-              Active sides publishing a clear squad profile for friendlies and
-              player interest. Find the right area, level, and match day.
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-3">
-            <div className="rounded-[1.5rem] border border-[color:var(--border)] bg-[var(--surface-alt)] px-5 py-4 text-right">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                Active teams
-              </p>
-              <p className="mt-1.5 text-3xl font-bold text-[var(--foreground)]">
-                {(teams ?? []).length}
-              </p>
+      <section className="relative overflow-hidden rounded-[2.2rem] border border-[color:var(--border)] bg-[linear-gradient(135deg,rgba(11,24,16,0.98),rgba(18,48,33,0.94))] p-8 text-white shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2.2rem]">
+          <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/8" />
+          <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
+          <div className="absolute bottom-0 left-1/2 h-24 w-52 -translate-x-1/2 rounded-t-full border-x border-t border-white/8" />
+        </div>
+
+        <div className="relative flex flex-wrap items-start justify-between gap-6">
+          <div className="max-w-3xl">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
+                Club board
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                Early access beta
+              </span>
             </div>
 
-            {user ? (
-              <Link
-                href={ownedTeam ? "/dashboard/team" : "/dashboard/team/new"}
-                className={buttonStyles({ variant: "secondary", size: "sm" })}
-              >
-                {ownedTeam ? "Manage your team" : "Create your team"}
-              </Link>
-            ) : (
-              <Link
-                href="/signup"
-                className={buttonStyles({ variant: "secondary", size: "sm" })}
-              >
-                Add your team
-              </Link>
-            )}
+            <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-[-0.03em] text-white md:text-5xl">
+              Real club profiles for grassroots teams looking for better fixtures.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-[color:var(--pitch-muted)]">
+              Browse sides by age group, level, format, and matchday fit.
+              Every card is built to answer the real football questions fast:
+              can they host, will they travel, and are they a sensible fixture?
+            </p>
           </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[1.6rem] border border-white/10 bg-white/6 px-5 py-4 text-right">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
+                Active club profiles
+              </p>
+              <p className="mt-2 text-3xl font-bold">{allTeams.length}</p>
+            </div>
+            <div className="rounded-[1.6rem] border border-white/10 bg-white/6 px-5 py-4 text-right">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
+                Squads open to join
+              </p>
+              <p className="mt-2 text-3xl font-bold">{openSquadTeams}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative mt-8 flex flex-wrap gap-3">
+          {user ? (
+            <Link
+              href={ownedTeam ? "/dashboard/team" : "/dashboard/team/new"}
+              className={buttonStyles({
+                size: "lg",
+                className: "bg-white text-[var(--foreground)] hover:bg-[var(--surface-alt)]",
+              })}
+            >
+              {ownedTeam ? "Manage your club profile" : "Create your club profile"}
+            </Link>
+          ) : (
+            <Link
+              href="/signup"
+              className={buttonStyles({
+                size: "lg",
+                className: "bg-white text-[var(--foreground)] hover:bg-[var(--surface-alt)]",
+              })}
+            >
+              Set up your team
+            </Link>
+          )}
+          <Link
+            href="/matches"
+            className={buttonStyles({
+              variant: "ghost",
+              size: "lg",
+              className: "border-white/10 text-white hover:bg-white/10",
+            })}
+          >
+            View fixture board
+          </Link>
         </div>
       </section>
 
@@ -153,19 +286,19 @@ export default async function TeamsPage() {
             ctaLabel="Return home"
           />
         </div>
-      ) : error ? (
+      ) : teamsResponse.error ? (
         <section className="mt-6 rounded-[1.75rem] border border-amber-200 bg-amber-50 p-6 text-amber-900">
-          We couldn&apos;t load the team directory right now. Refresh the page
-          and check Supabase if the problem continues.
+          We couldn&apos;t load the club board right now. Refresh the page and
+          check Supabase if the problem continues.
         </section>
-      ) : (teams ?? []).length === 0 ? (
+      ) : allTeams.length === 0 ? (
         <section className="mt-6 rounded-[2rem] border border-dashed border-[color:var(--border)] bg-[var(--surface)] p-8">
           <h2 className="text-2xl font-bold text-[var(--foreground)]">
-            No teams listed yet
+            No club profiles yet
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-            Once organisers create their team profile, it will appear here for
-            public browsing and squad requests.
+            Once organisers create their team profile, it will appear here with
+            squad context, pitch status, and matchday information.
           </p>
           <div className="mt-6">
             <Link href="/signup" className={buttonStyles({})}>
@@ -175,226 +308,270 @@ export default async function TeamsPage() {
         </section>
       ) : (
         <>
+          <div className="mt-6">
+            <DirectoryFilters
+              action="/teams"
+              fields={filterFields}
+              filteredCount={filteredTeams.length}
+              resultsLabel="club profiles"
+              totalCount={allTeams.length}
+              values={filters}
+            />
+          </div>
+
           {!teamMemberFeaturesAvailable ? (
             <section className="mt-6 rounded-[1.75rem] border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
-              Team listings are available, but squad join requests are disabled
+              Club profiles are available, but squad join requests are disabled
               until the <code>team_members</code> table is available in
               Supabase.
             </section>
           ) : null}
 
-          <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {(teams ?? []).map((team) => {
-              const approvedMembers = teamCounts.get(team.id) ?? 0;
-              const squadCount = getRegisteredSquadCount(approvedMembers);
-              const placesLeft = getRemainingSquadPlaces(approvedMembers);
-              const membershipStatus = membershipByTeamId.get(team.id);
-              const isOwner = ownedTeam?.id === team.id || team.owner_id === user?.id;
-              const alreadyCommittedElsewhere =
-                Boolean(existingSquadElsewhere) && membershipStatus == null;
+          {filteredTeams.length === 0 ? (
+            <section className="mt-6 rounded-[2rem] border border-dashed border-[color:var(--border)] bg-[var(--surface)] p-8">
+              <h2 className="text-2xl font-bold text-[var(--foreground)]">
+                No teams match those filters
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
+                Try widening the area or removing one of the football filters to
+                reveal more local opposition.
+              </p>
+            </section>
+          ) : (
+            <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {filteredTeams.map((team) => {
+                const approvedMembers = teamCounts.get(team.id) ?? 0;
+                const squadCount = getRegisteredSquadCount(approvedMembers);
+                const placesLeft = getRemainingSquadPlaces(approvedMembers);
+                const membershipStatus = membershipByTeamId.get(team.id);
+                const isOwner =
+                  ownedTeam?.id === team.id || team.owner_id === user?.id;
+                const alreadyCommittedElsewhere =
+                  Boolean(existingSquadElsewhere) && membershipStatus == null;
 
-              let cta: ReactNode = null;
+                let cta: ReactNode = null;
 
-              if (!user) {
-                cta = (
-                  <Link href="/login?message=join-team&next=/teams" className={buttonStyles({ size: "sm" })}>
-                    Log in to join
-                  </Link>
-                );
-              } else if (!teamMemberFeaturesAvailable) {
-                cta = (
-                  <button
-                    type="button"
-                    disabled
-                    className={buttonStyles({
-                      variant: "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    Join requests unavailable
-                  </button>
-                );
-              } else if (isOwner) {
-                cta = (
-                  <Link
-                    href="/dashboard/team"
-                    className={buttonStyles({ variant: "secondary", size: "sm" })}
-                  >
-                    Manage team
-                  </Link>
-                );
-              } else if (ownedTeam) {
-                cta = (
-                  <button
-                    type="button"
-                    disabled
-                    className={buttonStyles({
-                      variant: "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    Already managing a team
-                  </button>
-                );
-              } else if (membershipStatus === "approved") {
-                cta = (
-                  <button
-                    type="button"
-                    disabled
-                    className={buttonStyles({
-                      variant: "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    Already in this squad
-                  </button>
-                );
-              } else if (membershipStatus === "pending") {
-                cta = (
-                  <button
-                    type="button"
-                    disabled
-                    className={buttonStyles({
-                      variant: "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    Request pending
-                  </button>
-                );
-              } else if (membershipStatus === "rejected") {
-                cta = (
-                  <button
-                    type="button"
-                    disabled
-                    className={buttonStyles({
-                      variant: "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    Request already reviewed
-                  </button>
-                );
-              } else if (alreadyCommittedElsewhere) {
-                cta = (
-                  <button
-                    type="button"
-                    disabled
-                    className={buttonStyles({
-                      variant: "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    Already tied to another squad
-                  </button>
-                );
-              } else if (approvedMembers >= TEAM_APPROVED_MEMBER_LIMIT) {
-                cta = (
-                  <button
-                    type="button"
-                    disabled
-                    className={buttonStyles({
-                      variant: "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    Squad full
-                  </button>
-                );
-              } else {
-                cta = (
-                  <form action={requestToJoinTeam}>
-                    <input type="hidden" name="team_id" value={team.id} />
-                    <SubmitButton pendingText="Sending..." size="sm">
-                      Request to join
-                    </SubmitButton>
-                  </form>
-                );
-              }
+                if (!user) {
+                  cta = (
+                    <Link
+                      href="/login?message=join-team&next=/teams"
+                      className={buttonStyles({ size: "sm" })}
+                    >
+                      Log in to request a place
+                    </Link>
+                  );
+                } else if (!teamMemberFeaturesAvailable) {
+                  cta = (
+                    <button
+                      type="button"
+                      disabled
+                      className={buttonStyles({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
+                    >
+                      Join requests unavailable
+                    </button>
+                  );
+                } else if (isOwner) {
+                  cta = (
+                    <Link
+                      href="/dashboard/team"
+                      className={buttonStyles({ variant: "secondary", size: "sm" })}
+                    >
+                      Manage profile
+                    </Link>
+                  );
+                } else if (ownedTeam) {
+                  cta = (
+                    <button
+                      type="button"
+                      disabled
+                      className={buttonStyles({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
+                    >
+                      Already managing a team
+                    </button>
+                  );
+                } else if (membershipStatus === "approved") {
+                  cta = (
+                    <button
+                      type="button"
+                      disabled
+                      className={buttonStyles({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
+                    >
+                      Already in this squad
+                    </button>
+                  );
+                } else if (membershipStatus === "pending") {
+                  cta = (
+                    <button
+                      type="button"
+                      disabled
+                      className={buttonStyles({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
+                    >
+                      Join request pending
+                    </button>
+                  );
+                } else if (membershipStatus === "rejected") {
+                  cta = (
+                    <button
+                      type="button"
+                      disabled
+                      className={buttonStyles({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
+                    >
+                      Request already reviewed
+                    </button>
+                  );
+                } else if (alreadyCommittedElsewhere) {
+                  cta = (
+                    <button
+                      type="button"
+                      disabled
+                      className={buttonStyles({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
+                    >
+                      Already tied to another squad
+                    </button>
+                  );
+                } else if (approvedMembers >= TEAM_APPROVED_MEMBER_LIMIT) {
+                  cta = (
+                    <button
+                      type="button"
+                      disabled
+                      className={buttonStyles({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
+                    >
+                      Squad full
+                    </button>
+                  );
+                } else {
+                  cta = (
+                    <form action={requestToJoinTeam}>
+                      <input type="hidden" name="team_id" value={team.id} />
+                      <SubmitButton pendingText="Sending..." size="sm">
+                        Request to join squad
+                      </SubmitButton>
+                    </form>
+                  );
+                }
 
-              return (
-                <article
-                  key={team.id}
-                  className="flex flex-col overflow-hidden rounded-[2rem] border border-[color:var(--border)] bg-white shadow-[0_18px_44px_rgba(22,37,30,0.06)] transition hover:shadow-[0_24px_56px_rgba(22,37,30,0.10)]"
-                >
-                  <div className="border-b border-[color:var(--border)] px-6 py-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <TeamBadge
-                          name={team.name}
-                          logoUrl={team.logo_url ?? undefined}
-                          size="md"
-                        />
-                        <div>
-                          <h2 className="text-xl font-bold text-[var(--foreground)]">
-                            {team.name}
-                          </h2>
-                          {team.age_group ? (
-                            <p className="mt-1 text-xs font-medium text-[var(--muted)]">
-                              {team.age_group}
+                return (
+                  <article
+                    key={team.id}
+                    className="flex flex-col overflow-hidden rounded-[2rem] border border-[color:var(--border)] bg-white shadow-[0_20px_50px_rgba(22,37,30,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_56px_rgba(22,37,30,0.12)]"
+                  >
+                    <div className="border-b border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(15,123,88,0.08),rgba(255,255,255,0))] px-6 py-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <TeamBadge
+                            name={team.name}
+                            logoUrl={team.logo_url ?? undefined}
+                            size="md"
+                          />
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+                              Club profile
                             </p>
-                          ) : null}
+                            <h2 className="mt-1 text-xl font-bold text-[var(--foreground)]">
+                              {team.name}
+                            </h2>
+                          </div>
                         </div>
+
+                        {team.skill_level ? (
+                          <span className="shrink-0 rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--accent)]">
+                            {team.skill_level}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-1 flex-col gap-5 p-6">
+                      <div className="flex flex-wrap gap-2">
+                        {team.age_group ? (
+                          <span className="rounded-full bg-[var(--surface-alt)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
+                            {team.age_group}
+                          </span>
+                        ) : null}
+                        {team.team_format ? (
+                          <span className="rounded-full bg-[var(--surface-alt)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
+                            {team.team_format}
+                          </span>
+                        ) : null}
+                        {team.preferred_match_day ? (
+                          <span className="rounded-full bg-[var(--surface-alt)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
+                            {team.preferred_match_day}
+                          </span>
+                        ) : null}
                       </div>
 
-                      {team.skill_level ? (
-                        <span className="shrink-0 rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--accent)]">
-                          {team.skill_level}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-1 flex-col gap-5 p-6">
-                    <div className="space-y-2">
-                      {(team.city || team.area) ? (
-                        <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
-                          <MapPin size={13} className="shrink-0 text-[var(--accent)]" />
+                      <div className="space-y-2.5 text-sm text-[var(--muted)]">
+                        <div className="flex items-center gap-2">
+                          <MapPin size={14} className="shrink-0 text-[var(--accent)]" />
                           <span>
-                            {[team.city, team.area].filter(Boolean).join(", ")}
+                            {[team.city, team.area].filter(Boolean).join(", ") ||
+                              "Location pending"}
                           </span>
                         </div>
-                      ) : null}
-                      {team.preferred_match_day ? (
-                        <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
-                          <Calendar size={13} className="shrink-0 text-[var(--accent)]" />
-                          <span>{team.preferred_match_day}</span>
+                        <div className="flex items-center gap-2">
+                          <Calendar size={14} className="shrink-0 text-[var(--accent)]" />
+                          <span>
+                            {team.pitch_status || "Pitch situation not added yet"}
+                          </span>
                         </div>
-                      ) : null}
-                      <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
-                        <Users size={13} className="shrink-0 text-[var(--accent)]" />
-                        <span>
-                          {squadCount} in squad
-                          {placesLeft > 0
-                            ? ` · ${placesLeft} place${placesLeft === 1 ? "" : "s"} left`
-                            : " · squad full"}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <Shield size={14} className="shrink-0 text-[var(--accent)]" />
+                          <span>
+                            {team.travel_willingness ||
+                              "Travel preference not added yet"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users size={14} className="shrink-0 text-[var(--accent)]" />
+                          <span>
+                            {squadCount} in squad
+                            {placesLeft > 0
+                              ? ` · ${placesLeft} place${placesLeft === 1 ? "" : "s"} left`
+                              : " · squad full"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="text-sm leading-7 text-[var(--muted)]">
+                        {team.bio?.trim() ||
+                          "This team has not added a club summary yet."}
+                      </p>
+
+                      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--border)] pt-5">
+                        <p className="text-xs text-[var(--muted)]">
+                          {isOwner
+                            ? "You manage this club profile."
+                            : "Join requests land in the organiser dashboard."}
+                        </p>
+                        {cta}
                       </div>
                     </div>
-
-                    {team.bio ? (
-                      <p className="text-sm leading-7 text-[var(--muted)] line-clamp-4">
-                        {team.bio}
-                      </p>
-                    ) : (
-                      <p className="text-sm italic text-[var(--muted)] opacity-70">
-                        No team summary added yet.
-                      </p>
-                    )}
-
-                    <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--border)] pt-5">
-                      <p className="text-xs text-[var(--muted)]">
-                        {isOwner
-                          ? "You manage this team."
-                          : "Join requests go to the team owner dashboard."}
-                      </p>
-                      {cta}
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </section>
+                  </article>
+                );
+              })}
+            </section>
+          )}
         </>
       )}
     </main>

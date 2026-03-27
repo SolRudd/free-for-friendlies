@@ -9,11 +9,11 @@ function getNavItems(hasTeam: boolean) {
     { href: "/dashboard", label: "Overview" },
     {
       href: hasTeam ? "/dashboard/team" : "/dashboard/team/new",
-      label: hasTeam ? "Manage team" : "Create team",
+      label: hasTeam ? "Club Profile" : "Create Team",
     },
-    { href: "/dashboard/matches/new", label: "Post request" },
-    { href: "/teams", label: "Public teams" },
-    { href: "/matches", label: "Public matches" },
+    { href: "/dashboard/matches/new", label: "Post Fixture" },
+    { href: "/teams", label: "Club Board" },
+    { href: "/matches", label: "Fixture Board" },
   ];
 }
 

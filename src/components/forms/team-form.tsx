@@ -6,9 +6,15 @@ import { FieldError } from "@/components/forms/field-error";
 import { FormAlert } from "@/components/forms/form-alert";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { TeamBadge } from "@/components/team/team-badge";
+import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { EMPTY_FORM_STATE } from "@/lib/form-state";
+import {
+  PITCH_STATUS_OPTIONS,
+  TEAM_FORMAT_OPTIONS,
+  TRAVEL_WILLINGNESS_OPTIONS,
+} from "@/lib/football";
 
 type TeamFormValues = {
   id?: string;
@@ -17,7 +23,10 @@ type TeamFormValues = {
   area?: string | null;
   age_group?: string;
   skill_level?: string;
+  team_format?: string;
   preferred_match_day?: string;
+  pitch_status?: string;
+  travel_willingness?: string;
   contact_email?: string | null;
   bio?: string | null;
   logo_url?: string | null;
@@ -45,9 +54,16 @@ export function TeamForm({
     area: state.values?.area ?? initialValues?.area ?? "",
     age_group: state.values?.age_group ?? initialValues?.age_group ?? "",
     skill_level: state.values?.skill_level ?? initialValues?.skill_level ?? "",
+    team_format: state.values?.team_format ?? initialValues?.team_format ?? "",
     preferred_match_day:
       state.values?.preferred_match_day ??
       initialValues?.preferred_match_day ??
+      "",
+    pitch_status:
+      state.values?.pitch_status ?? initialValues?.pitch_status ?? "",
+    travel_willingness:
+      state.values?.travel_willingness ??
+      initialValues?.travel_willingness ??
       "",
     contact_email:
       state.values?.contact_email ??
@@ -55,6 +71,24 @@ export function TeamForm({
       defaultContactEmail,
     bio: state.values?.bio ?? initialValues?.bio ?? "",
   };
+  const teamFormatOptions = resolvedValues.team_format &&
+    !TEAM_FORMAT_OPTIONS.includes(
+      resolvedValues.team_format as (typeof TEAM_FORMAT_OPTIONS)[number],
+    )
+    ? [resolvedValues.team_format, ...TEAM_FORMAT_OPTIONS]
+    : [...TEAM_FORMAT_OPTIONS];
+  const pitchStatusOptions = resolvedValues.pitch_status &&
+    !PITCH_STATUS_OPTIONS.includes(
+      resolvedValues.pitch_status as (typeof PITCH_STATUS_OPTIONS)[number],
+    )
+    ? [resolvedValues.pitch_status, ...PITCH_STATUS_OPTIONS]
+    : [...PITCH_STATUS_OPTIONS];
+  const travelOptions = resolvedValues.travel_willingness &&
+    !TRAVEL_WILLINGNESS_OPTIONS.includes(
+      resolvedValues.travel_willingness as (typeof TRAVEL_WILLINGNESS_OPTIONS)[number],
+    )
+    ? [resolvedValues.travel_willingness, ...TRAVEL_WILLINGNESS_OPTIONS]
+    : [...TRAVEL_WILLINGNESS_OPTIONS];
 
   return (
     <form
@@ -196,7 +230,7 @@ export function TeamForm({
         </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-3">
         <div>
           <label
             htmlFor="team-skill-level"
@@ -223,6 +257,36 @@ export function TeamForm({
 
         <div>
           <label
+            htmlFor="team-format"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
+            Main format
+          </label>
+          <Select
+            id="team-format"
+            name="team_format"
+            required
+            defaultValue={resolvedValues.team_format}
+            aria-invalid={Boolean(getError("team_format"))}
+            aria-describedby={
+              getError("team_format") ? "team-format-error" : "team-format-hint"
+            }
+          >
+            <option value="">Select format</option>
+            {teamFormatOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
+          <p id="team-format-hint" className="mt-2 text-sm text-[var(--muted)]">
+            The regular format your side is built around.
+          </p>
+          <FieldError id="team-format-error" error={getError("team_format")} />
+        </div>
+
+        <div>
+          <label
             htmlFor="team-preferred-match-day"
             className="mb-2 block text-sm font-medium text-[var(--foreground)]"
           >
@@ -244,6 +308,84 @@ export function TeamForm({
           <FieldError
             id="team-preferred-match-day-error"
             error={getError("preferred_match_day")}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        <div>
+          <label
+            htmlFor="team-pitch-status"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
+            Pitch situation
+          </label>
+          <Select
+            id="team-pitch-status"
+            name="pitch_status"
+            required
+            defaultValue={resolvedValues.pitch_status}
+            aria-invalid={Boolean(getError("pitch_status"))}
+            aria-describedby={
+              getError("pitch_status")
+                ? "team-pitch-status-error"
+                : "team-pitch-status-hint"
+            }
+          >
+            <option value="">Select pitch situation</option>
+            {pitchStatusOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
+          <p
+            id="team-pitch-status-hint"
+            className="mt-2 text-sm text-[var(--muted)]"
+          >
+            Tell organisers whether you can host or need a pitch.
+          </p>
+          <FieldError
+            id="team-pitch-status-error"
+            error={getError("pitch_status")}
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="team-travel-willingness"
+            className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+          >
+            Travel willingness
+          </label>
+          <Select
+            id="team-travel-willingness"
+            name="travel_willingness"
+            required
+            defaultValue={resolvedValues.travel_willingness}
+            aria-invalid={Boolean(getError("travel_willingness"))}
+            aria-describedby={
+              getError("travel_willingness")
+                ? "team-travel-willingness-error"
+                : "team-travel-willingness-hint"
+            }
+          >
+            <option value="">Select travel range</option>
+            {travelOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
+          <p
+            id="team-travel-willingness-hint"
+            className="mt-2 text-sm text-[var(--muted)]"
+          >
+            Helps other teams judge whether the fixture is realistic.
+          </p>
+          <FieldError
+            id="team-travel-willingness-error"
+            error={getError("travel_willingness")}
           />
         </div>
       </div>

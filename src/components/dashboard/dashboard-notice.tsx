@@ -33,6 +33,15 @@ export function DashboardNotice() {
     );
   }
 
+  if (message === "fixture-posted") {
+    return (
+      <FormAlert tone="info">
+        Your fixture need is live on the board. Keep it current if the venue,
+        date, or matchday details change.
+      </FormAlert>
+    );
+  }
+
   if (message === "join-approved") {
     return (
       <FormAlert tone="info">

@@ -22,7 +22,10 @@ create table if not exists public.teams (
   area text,
   age_group text,
   skill_level text,
+  team_format text,
   preferred_match_day text,
+  pitch_status text,
+  travel_willingness text,
   contact_email text,
   whatsapp_number text,
   is_active boolean not null default true,
@@ -52,12 +55,22 @@ create table if not exists public.match_requests (
   age_group text,
   skill_level text,
   match_format text,
+  venue_status text,
+  travel_willingness text,
   preferred_date date,
   preferred_time text,
   status text not null default 'open',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.teams add column if not exists logo_url text;
+alter table public.teams add column if not exists team_format text;
+alter table public.teams add column if not exists pitch_status text;
+alter table public.teams add column if not exists travel_willingness text;
+
+alter table public.match_requests add column if not exists venue_status text;
+alter table public.match_requests add column if not exists travel_willingness text;
 
 alter table public.profiles enable row level security;
 alter table public.teams enable row level security;

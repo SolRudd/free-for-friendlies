@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, PenSquare, ShieldCheck, Users } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarClock,
+  PenSquare,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 import { reviewJoinRequest } from "@/app/actions/team-membership";
 import { DashboardNotice } from "@/components/dashboard/dashboard-notice";
 import { TeamBadge } from "@/components/team/team-badge";
@@ -65,7 +71,7 @@ export default async function DashboardPage() {
       supabase
         .from("teams")
         .select(
-          "id, name, slug, logo_url, city, area, skill_level, age_group, preferred_match_day, bio",
+          "id, name, slug, logo_url, city, area, skill_level, age_group, team_format, preferred_match_day, pitch_status, travel_willingness, bio",
         )
         .eq("owner_id", user!.id)
         .order("created_at", { ascending: false }),
@@ -80,7 +86,7 @@ export default async function DashboardPage() {
           supabase
             .from("match_requests")
             .select(
-              "id, title, preferred_date, preferred_time, status, match_format, city",
+              "id, title, preferred_date, preferred_time, status, match_format, venue_status, travel_willingness, city",
             )
             .eq("team_id", managedTeam.id)
             .order("created_at", { ascending: false }),
@@ -148,17 +154,22 @@ export default async function DashboardPage() {
       <DashboardNotice />
 
       <section className="rounded-[2rem] border border-[color:var(--border)] bg-white p-8 shadow-[0_24px_60px_rgba(22,37,30,0.08)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
-          Overview
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
+            Matchday operations
+          </p>
+          <span className="rounded-full border border-[color:rgba(17,28,21,0.08)] bg-[var(--surface-alt)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+            Early access beta
+          </span>
+        </div>
         <div className="mt-4 flex flex-wrap items-start justify-between gap-6">
           <div className="max-w-2xl">
             <h1 className="text-4xl font-bold text-[var(--foreground)] md:text-5xl">
               Welcome back, {displayName}.
             </h1>
             <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-              Run one clear team profile, keep your squad pipeline tidy, and
-              post fixture requests when you need an opponent.
+              Your team operations home for club profile updates, squad demand,
+              and live fixture needs.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -206,7 +217,7 @@ export default async function DashboardPage() {
             {managedTeam ? 1 : 0}
           </p>
           <p className="mt-1.5 text-xs text-[var(--muted)]">
-            One team profile per account in this MVP.
+            One club profile per account in this MVP.
           </p>
         </article>
 
@@ -256,10 +267,10 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold text-[var(--foreground)]">
-                Team context
+                Club context
               </h2>
               <p className="mt-1.5 text-sm text-[var(--muted)]">
-                The single team profile your account currently manages.
+                The single club profile your account currently manages.
               </p>
             </div>
             <Link
@@ -277,8 +288,8 @@ export default async function DashboardPage() {
                   No team set up yet
                 </h3>
                 <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                  Create one proper team profile first. That unlocks public
-                  directory visibility, squad join requests, and match posting.
+                  Create one proper club profile first. That unlocks public
+                  board visibility, squad join requests, and live fixture posts.
                 </p>
                 <Link
                   href="/dashboard/team/new"
@@ -316,6 +327,12 @@ export default async function DashboardPage() {
                           <>
                             <span className="text-[var(--border)]">·</span>
                             <span>{managedTeam.preferred_match_day}</span>
+                          </>
+                        ) : null}
+                        {managedTeam.team_format ? (
+                          <>
+                            <span className="text-[var(--border)]">·</span>
+                            <span>{managedTeam.team_format}</span>
                           </>
                         ) : null}
                       </div>
@@ -356,9 +373,28 @@ export default async function DashboardPage() {
                   </div>
                 </div>
 
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-[1.25rem] border border-[color:var(--border)] bg-white px-4 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                      Pitch situation
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
+                      {managedTeam.pitch_status || "Not added yet"}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.25rem] border border-[color:var(--border)] bg-white px-4 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                      Travel range
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
+                      {managedTeam.travel_willingness || "Not added yet"}
+                    </p>
+                  </div>
+                </div>
+
                 <p className="mt-5 text-sm leading-7 text-[var(--muted)]">
                   {managedTeam.bio?.trim() ||
-                    "Add a short summary so other organisers know your level, area, and ideal friendly setup."}
+                    "Add a short football summary so other organisers know your level, area, and ideal fixture setup."}
                 </p>
               </article>
             )}
@@ -473,10 +509,10 @@ export default async function DashboardPage() {
             <h2 className="text-2xl font-bold text-[var(--foreground)]">
               Recent requests
             </h2>
-            <p className="mt-1.5 text-sm text-[var(--muted)]">
-              Your latest friendly posts and their board status.
-            </p>
-          </div>
+              <p className="mt-1.5 text-sm text-[var(--muted)]">
+                Your latest fixture needs and their board status.
+              </p>
+            </div>
           <Link
             href="/dashboard/matches/new"
             className={buttonStyles({ variant: "secondary", size: "sm" })}
@@ -491,22 +527,22 @@ export default async function DashboardPage() {
               <h3 className="text-lg font-semibold text-[var(--foreground)]">
                 Create a team first
               </h3>
-              <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                Match requests belong to your managed team profile, so get that
-                set up before posting.
-              </p>
+                <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+                  Fixture posts belong to your managed team profile, so get that
+                  set up before posting.
+                </p>
             </div>
           ) : requests.length === 0 ? (
             <div className="rounded-[1.5rem] border border-dashed border-[color:var(--border)] bg-[var(--surface)] p-6">
-              <h3 className="text-lg font-semibold text-[var(--foreground)]">
-                No match requests yet
-              </h3>
-              <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                Once your team is ready, publish a request to start filling open
-                fixture dates.
-              </p>
-            </div>
-          ) : (
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">
+                  No fixture posts yet
+                </h3>
+                <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+                  Once your team is ready, publish a fixture need to start
+                  filling open dates.
+                </p>
+              </div>
+            ) : (
             requests.slice(0, 5).map((request) => (
               <article
                 key={request.id}
@@ -540,6 +576,18 @@ export default async function DashboardPage() {
                     <>
                       <span>·</span>
                       <span>{request.match_format}</span>
+                    </>
+                  ) : null}
+                  {request.venue_status ? (
+                    <>
+                      <span>·</span>
+                      <span>{request.venue_status}</span>
+                    </>
+                  ) : null}
+                  {request.travel_willingness ? (
+                    <>
+                      <span>·</span>
+                      <span>{request.travel_willingness}</span>
                     </>
                   ) : null}
                   {request.city ? (

@@ -56,7 +56,7 @@ export default async function ManageTeamPage({
   const { data: teams, error: teamsError } = await supabase
     .from("teams")
     .select(
-      "id, name, slug, logo_url, city, area, age_group, skill_level, preferred_match_day, contact_email, bio",
+      "id, name, slug, logo_url, city, area, age_group, skill_level, team_format, preferred_match_day, pitch_status, travel_willingness, contact_email, bio",
     )
     .eq("owner_id", user!.id)
     .order("created_at", { ascending: false });
@@ -143,7 +143,7 @@ export default async function ManageTeamPage({
             </div>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)]">
               Keep one clear team identity in the prototype. This profile drives
-              your public directory listing, squad join requests, and match
+              your public club listing, squad join requests, and live fixture
               posting context.
             </p>
           </div>
@@ -191,6 +191,23 @@ export default async function ManageTeamPage({
                 ? `${placesLeft} squad place${placesLeft === 1 ? "" : "s"} still open.`
                 : "Your prototype squad is full."}
             </p>
+          </article>
+
+          <article className="rounded-[1.75rem] border border-[color:var(--border)] bg-[var(--surface)] p-6 shadow-[0_16px_40px_rgba(22,37,30,0.05)]">
+            <p className="text-sm font-medium text-[var(--muted)]">
+              Match identity
+            </p>
+            <div className="mt-4 space-y-3 text-sm text-[var(--foreground)]">
+              <p className="font-semibold">
+                {managedTeam.team_format || "Format not added yet"}
+              </p>
+              <p className="text-[var(--muted)]">
+                {managedTeam.pitch_status || "Pitch situation not added yet"}
+              </p>
+              <p className="text-[var(--muted)]">
+                {managedTeam.travel_willingness || "Travel range not added yet"}
+              </p>
+            </div>
           </article>
         </div>
 
