@@ -94,6 +94,8 @@ export default async function ManageTeamPage({
 
   const approvedMembers = approvedCountResponse.count ?? 0;
   const pendingMembers = pendingCountResponse.count ?? 0;
+  const membershipDataError =
+    approvedCountResponse.error || pendingCountResponse.error;
   const squadCount = getRegisteredSquadCount(approvedMembers);
   const placesLeft = getRemainingSquadPlaces(approvedMembers);
   const infoMessage = getPageMessage(messageParam);
@@ -108,6 +110,15 @@ export default async function ManageTeamPage({
           Check that <code>SUPABASE_SERVICE_ROLE_KEY</code> is configured and
           the <code>team-assets</code> bucket exists.
         </FormAlert>
+      ) : null}
+      {membershipDataError ? (
+        <section className="rounded-[1.75rem] border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+          Squad counts could not be loaded. Check that the
+          <code className="mx-1">team_members</code>
+          table and the latest policies from
+          <code className="mx-1">supabase-schema.sql</code>
+          have been applied in Supabase.
+        </section>
       ) : null}
 
       {hasLegacyExtraTeams ? (

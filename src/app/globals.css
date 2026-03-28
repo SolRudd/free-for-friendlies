@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Serif+Display&display=swap');
+
 @import "tailwindcss";
 
 :root {
@@ -24,6 +26,10 @@
   /* Structural accent helpers */
   --accent-line: rgba(15, 123, 88, 0.24);
   --accent-glow: rgba(15, 123, 88, 0.10);
+
+  /* Typography */
+  --font-display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'DM Sans', 'Avenir Next', system-ui, sans-serif;
 }
 
 html {
@@ -37,15 +43,14 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(15, 132, 88, 0.16), transparent 30%),
-    radial-gradient(circle at top center, rgba(200, 155, 60, 0.10), transparent 22%),
-    radial-gradient(circle at top right, rgba(200, 155, 60, 0.12), transparent 24%),
-    radial-gradient(circle at bottom left, rgba(15, 132, 88, 0.09), transparent 26%),
-    linear-gradient(90deg, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 120px),
+    radial-gradient(circle at top left, rgba(15, 132, 88, 0.12), transparent 30%),
+    radial-gradient(circle at top center, rgba(200, 155, 60, 0.08), transparent 22%),
+    radial-gradient(circle at top right, rgba(200, 155, 60, 0.10), transparent 24%),
+    radial-gradient(circle at bottom left, rgba(15, 132, 88, 0.07), transparent 26%),
     linear-gradient(180deg, #f3efe6 0%, #ebe3d4 100%);
   color: var(--foreground);
   min-height: 100vh;
-  font-family: "Avenir Next", "Trebuchet MS", "Gill Sans MT", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-body);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }

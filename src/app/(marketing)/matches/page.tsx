@@ -223,20 +223,13 @@ export default async function MatchesPage({
         <div className="relative mt-8 flex flex-wrap gap-3">
           <Link
             href={user ? "/dashboard/matches/new" : "/signup"}
-            className={buttonStyles({
-              size: "lg",
-              className: "bg-white text-[var(--foreground)] hover:bg-[var(--surface-alt)]",
-            })}
+            className={buttonStyles({ variant: "inverse", size: "lg" })}
           >
             {user ? "Put a fixture on the board" : "Create a team and post"}
           </Link>
           <Link
             href="/teams"
-            className={buttonStyles({
-              variant: "ghost",
-              size: "lg",
-              className: "border-white/10 text-white hover:bg-white/10",
-            })}
+            className={buttonStyles({ variant: "inverseGhost", size: "lg" })}
           >
             Browse club profiles
           </Link>

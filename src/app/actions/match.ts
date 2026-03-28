@@ -27,6 +27,20 @@ const matchFields = [
   "description",
 ] as const;
 
+function getPersistenceErrorMessage(errorMessage?: string) {
+  const normalized = errorMessage?.toLowerCase() ?? "";
+
+  if (
+    normalized.includes("column") ||
+    normalized.includes("schema cache") ||
+    normalized.includes("relation") && normalized.includes("does not exist")
+  ) {
+    return "Your Supabase schema is missing one or more Free For Friendlies tables or columns. Apply the latest supabase-schema.sql changes, then try again.";
+  }
+
+  return "We couldn't publish that request right now. Please try again.";
+}
+
 export async function createMatchRequest(
   _previousState: FormState,
   formData: FormData,
@@ -80,7 +94,14 @@ export async function createMatchRequest(
       .limit(1)
       .maybeSingle();
 
-    if (teamError || !team || team.id !== parsed.data.team_id) {
+    if (teamError) {
+      return {
+        message: getPersistenceErrorMessage(teamError.message),
+        values,
+      };
+    }
+
+    if (!team || team.id !== parsed.data.team_id) {
       return {
         message: "Post match requests from the team currently managed by your account.",
         values,
@@ -105,7 +126,7 @@ export async function createMatchRequest(
 
     if (error) {
       return {
-        message: "We couldn't publish that request right now. Please try again.",
+        message: getPersistenceErrorMessage(error.message),
         values,
       };
     }

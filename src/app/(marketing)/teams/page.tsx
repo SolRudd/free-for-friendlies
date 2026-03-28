@@ -255,31 +255,21 @@ export default async function TeamsPage({
           {user ? (
             <Link
               href={ownedTeam ? "/dashboard/team" : "/dashboard/team/new"}
-              className={buttonStyles({
-                size: "lg",
-                className: "bg-white text-[var(--foreground)] hover:bg-[var(--surface-alt)]",
-              })}
+              className={buttonStyles({ variant: "inverse", size: "lg" })}
             >
               {ownedTeam ? "Manage your club profile" : "Put your team on the board"}
             </Link>
           ) : (
             <Link
               href="/signup"
-              className={buttonStyles({
-                size: "lg",
-                className: "bg-white text-[var(--foreground)] hover:bg-[var(--surface-alt)]",
-              })}
+              className={buttonStyles({ variant: "inverse", size: "lg" })}
             >
               Put your team on the board
             </Link>
           )}
           <Link
             href="/matches"
-            className={buttonStyles({
-              variant: "ghost",
-              size: "lg",
-              className: "border-white/10 text-white hover:bg-white/10",
-            })}
+            className={buttonStyles({ variant: "inverseGhost", size: "lg" })}
           >
             View fixture board
           </Link>

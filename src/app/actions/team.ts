@@ -24,6 +24,32 @@ const teamFields = [
   "bio",
 ] as const;
 
+function getPersistenceErrorMessage({
+  errorMessage,
+  fallback,
+  foreignKeyFallback,
+}: {
+  errorMessage?: string;
+  fallback: string;
+  foreignKeyFallback?: string;
+}) {
+  const normalized = errorMessage?.toLowerCase() ?? "";
+
+  if (
+    normalized.includes("column") ||
+    normalized.includes("schema cache") ||
+    normalized.includes("relation") && normalized.includes("does not exist")
+  ) {
+    return "Your Supabase schema is missing one or more Free For Friendlies tables or columns. Apply the latest supabase-schema.sql changes, then try again.";
+  }
+
+  if (foreignKeyFallback && normalized.includes("foreign key")) {
+    return foreignKeyFallback;
+  }
+
+  return fallback;
+}
+
 async function getAuthenticatedSupabase(values: Record<string, string>) {
   let supabase: SupabaseClient | null = null;
 
@@ -213,10 +239,12 @@ export async function createTeam(
 
     if (error || !data) {
       return {
-        message:
-          error?.message.toLowerCase().includes("foreign key")
-            ? "We couldn't find your profile row. Log out and back in, then try again."
-            : "We couldn't save that team right now. Please try again.",
+        message: getPersistenceErrorMessage({
+          errorMessage: error?.message,
+          fallback: "We couldn't save that team right now. Please try again.",
+          foreignKeyFallback:
+            "We couldn't find your profile row. Log out and back in, then try again.",
+        }),
         values,
       };
     }
@@ -346,7 +374,10 @@ export async function updateTeam(
 
     if (error) {
       return {
-        message: "We couldn't update that team right now. Please try again.",
+        message: getPersistenceErrorMessage({
+          errorMessage: error.message,
+          fallback: "We couldn't update that team right now. Please try again.",
+        }),
         values,
       };
     }

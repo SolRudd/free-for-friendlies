@@ -1,5 +1,7 @@
 "use client";
 
+import { buttonStyles } from "@/components/ui/button";
+
 export default function GlobalError({
   error,
   reset,
@@ -24,7 +26,7 @@ export default function GlobalError({
             <button
               type="button"
               onClick={reset}
-              className="mt-6 inline-flex rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+              className={buttonStyles({ className: "mt-6" })}
             >
               Try again
             </button>

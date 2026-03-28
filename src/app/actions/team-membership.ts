@@ -156,11 +156,22 @@ export async function reviewJoinRequest(formData: FormData) {
     redirect("/dashboard?message=join-review-error");
   }
 
+  const { data: ownedTeam, error: ownedTeamError } = await supabase
+    .from("teams")
+    .select("id")
+    .eq("id", membership.team_id)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (ownedTeamError || !ownedTeam) {
+    redirect("/dashboard?message=join-review-error");
+  }
+
   if (parsed.data.decision === "approve") {
     const { count } = await supabase
       .from("team_members")
       .select("id", { count: "exact", head: true })
-      .eq("team_id", membership.team_id)
+      .eq("team_id", ownedTeam.id)
       .eq("status", "approved");
 
     if ((count ?? 0) >= TEAM_APPROVED_MEMBER_LIMIT) {
@@ -178,7 +189,8 @@ export async function reviewJoinRequest(formData: FormData) {
           : null,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", membership.id);
+    .eq("id", membership.id)
+    .eq("team_id", ownedTeam.id);
 
   if (error) {
     redirect("/dashboard?message=join-review-error");

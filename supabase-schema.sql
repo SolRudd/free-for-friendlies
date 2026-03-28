@@ -64,18 +64,70 @@ create table if not exists public.match_requests (
   updated_at timestamptz not null default now()
 );
 
+alter table public.profiles add column if not exists email text;
+alter table public.profiles add column if not exists full_name text;
+alter table public.profiles add column if not exists phone text;
+alter table public.profiles add column if not exists location text;
+alter table public.profiles add column if not exists role_label text;
+alter table public.profiles add column if not exists created_at timestamptz not null default now();
+alter table public.profiles add column if not exists updated_at timestamptz not null default now();
+
+alter table public.teams add column if not exists slug text;
 alter table public.teams add column if not exists logo_url text;
+alter table public.teams add column if not exists bio text;
+alter table public.teams add column if not exists city text;
+alter table public.teams add column if not exists area text;
+alter table public.teams add column if not exists age_group text;
+alter table public.teams add column if not exists skill_level text;
 alter table public.teams add column if not exists team_format text;
+alter table public.teams add column if not exists preferred_match_day text;
 alter table public.teams add column if not exists pitch_status text;
 alter table public.teams add column if not exists travel_willingness text;
+alter table public.teams add column if not exists contact_email text;
+alter table public.teams add column if not exists whatsapp_number text;
+alter table public.teams add column if not exists is_active boolean not null default true;
+alter table public.teams add column if not exists created_at timestamptz not null default now();
+alter table public.teams add column if not exists updated_at timestamptz not null default now();
 
+alter table public.team_members add column if not exists status text not null default 'pending';
+alter table public.team_members add column if not exists request_message text;
+alter table public.team_members add column if not exists approved_at timestamptz;
+alter table public.team_members add column if not exists created_at timestamptz not null default now();
+alter table public.team_members add column if not exists updated_at timestamptz not null default now();
+
+alter table public.match_requests add column if not exists description text;
+alter table public.match_requests add column if not exists city text;
+alter table public.match_requests add column if not exists area text;
+alter table public.match_requests add column if not exists age_group text;
+alter table public.match_requests add column if not exists skill_level text;
+alter table public.match_requests add column if not exists match_format text;
 alter table public.match_requests add column if not exists venue_status text;
 alter table public.match_requests add column if not exists travel_willingness text;
+alter table public.match_requests add column if not exists preferred_date date;
+alter table public.match_requests add column if not exists preferred_time text;
+alter table public.match_requests add column if not exists status text not null default 'open';
+alter table public.match_requests add column if not exists created_at timestamptz not null default now();
+alter table public.match_requests add column if not exists updated_at timestamptz not null default now();
 
 alter table public.profiles enable row level security;
 alter table public.teams enable row level security;
 alter table public.team_members enable row level security;
 alter table public.match_requests enable row level security;
+
+drop policy if exists "profiles_select_own" on public.profiles;
+drop policy if exists "profiles_insert_own" on public.profiles;
+drop policy if exists "profiles_update_own" on public.profiles;
+drop policy if exists "teams_public_read" on public.teams;
+drop policy if exists "teams_owner_insert" on public.teams;
+drop policy if exists "teams_owner_update" on public.teams;
+drop policy if exists "team_members_self_read" on public.team_members;
+drop policy if exists "team_members_owner_read" on public.team_members;
+drop policy if exists "team_members_public_read_approved" on public.team_members;
+drop policy if exists "team_members_self_insert" on public.team_members;
+drop policy if exists "team_members_owner_update" on public.team_members;
+drop policy if exists "match_requests_public_read" on public.match_requests;
+drop policy if exists "match_requests_owner_insert" on public.match_requests;
+drop policy if exists "match_requests_owner_update" on public.match_requests;
 
 create policy "profiles_select_own" on public.profiles for select to authenticated using (auth.uid() = id);
 create policy "profiles_insert_own" on public.profiles for insert to authenticated with check (auth.uid() = id);
